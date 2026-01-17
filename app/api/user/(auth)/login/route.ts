@@ -44,13 +44,16 @@ export async function POST(req: NextRequest) {
 
         // ถ้าตรงจะสร้างโทเคน และเก็บ payload เป็น user id , role เพิ่ม role เพื่อความสะดวกในการเชคสิทธิในฝั่งแอปมือถือ
         const token = await genarateToken(exitUser.id , exitUser.role)
-
+        
         // 4. Login สำเร็จ
         return NextResponse.json(
             { 
                 message: "เข้าสู่ระบบสำเร็จ",
                 token : token ,
-                role : exitUser.role // ส่งกลับไปเพื่อให้ฝั่งแอปสามารถย้ายหน้าไปได้ว่าเป็น นิสิต หรือ บัญชีหอพัก
+                user :{
+                    id : exitUser.id , 
+                    role : exitUser.role
+                } // ส่งกลับไปเพื่อให้ฝั่งแอปสามารถย้ายหน้าไปได้ว่าเป็น นิสิต หรือ บัญชีหอพัก
             }, 
             { status: 200 }
         );
