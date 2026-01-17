@@ -12,6 +12,7 @@ interface UserPayload extends JwtPayload{
 
 export async function hash_password_genarate(password : string){
    try{
+
         if(!BCRYPT_SALT) throw new Error("ไม่มีค่า salt")
         return await bcrypt.hash(password , BCRYPT_SALT)
     }catch(err){

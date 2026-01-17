@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
             .single(); 
 
         const exitUser = user as User
-
+        // console.log("ExitUser" , exitUser)
         // ถ้าไม่เจอ user หรือมี error จาก database
         if (error || !exitUser) {
             return NextResponse.json(
@@ -33,8 +33,7 @@ export async function POST(req: NextRequest) {
         }
         
         // ตรวจสอบรหัสผ่านว่าตรงไหม
-        const isMatch = verifyPassword(password , exitUser.hash_password)
-        
+        const isMatch = await verifyPassword(password , exitUser.hash_password)
         // ถ้าไม่ตรงให้ส่งกลับไป
         if(!isMatch){
             return NextResponse.json(
