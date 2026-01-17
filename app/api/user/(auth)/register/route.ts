@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-export default async function Register(req : NextRequest){
+export  async function POST(req : NextRequest){
     try{
 
         const {email , password , otp } = await req.json()
