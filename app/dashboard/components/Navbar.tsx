@@ -24,7 +24,8 @@ export default function DashboardNavbar() {
 
   const handleLogout = async () => {
     // ใช้ toast.promise รับค่า Promise จาก Server Action
-    toast.promise(
+    try{
+      toast.promise(
         logout() ,{
             pending : "กำลังออกจากระบบ" ,
             success: "ออกจากระบบเรียบร้อย",
@@ -32,6 +33,9 @@ export default function DashboardNavbar() {
         }
     )
     router.push('/auth')
+    }catch(err){
+      console.log(err)
+    }
   }
   return (
     <nav className="w-full border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
