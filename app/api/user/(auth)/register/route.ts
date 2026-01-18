@@ -75,7 +75,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ 
             message: 'สมัครสมาชิกสำเร็จ', 
             token: token, 
-            role: user.role 
+            user :{
+                id : user.id , 
+                role : user.role
+            } // ส่งกลับไปให้หน้าแอปบันทึก อับเดต authContext หน้าแอป
         }, { status: 201 }) // Created 
 
     } catch (err) {
