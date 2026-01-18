@@ -69,6 +69,18 @@ export async function POST(req: NextRequest) {
 
         const user = insertedUser[0] as User
         
+        const newUserDetailData = {
+            id: user.id ,
+            name : user.email
+        }
+        // สร้างแถวในตาราง user_detail โดยให้ข้อมูล defult เป็นว่าง ชื่อเป็น เมล
+        const { error:insertUserDetailError} = await 
+        supabase
+        .from('user_detail')
+        .insert(newUserDetailData)
+        
+        if(insertUserDetailError) throw insertUserDetailError
+ 
         // 7. สร้าง Token
         const token = await genarateToken(user.id, user.role)
 
