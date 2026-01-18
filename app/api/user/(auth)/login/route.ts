@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) { 
     try {
         const { email, password } = await req.json();
-
+        // console.log("Bacend recive email pass" , email , password)
         // Validate input
         if (!email || !password) {
             return NextResponse.json(
