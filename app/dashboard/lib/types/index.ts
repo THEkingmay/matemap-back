@@ -15,7 +15,9 @@ export interface DormListProps {
     landlord: {
       name: string;
     };
-    role: string;
+    phoneNumber: string;
+    idLine?: string;
+    socialMediaLink?: string;
   }>;
 }
 
@@ -56,5 +58,8 @@ export interface DormContentProps {
     landlord: {
       name: string;
     };
+    phoneNumber: string;
+    idLine: string;
+    socialMediaLink?: string;
   };
 }
