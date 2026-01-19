@@ -7,7 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Pencil, Trash } from "lucide-react";
+import {
+  ExternalLink,
+  MessageCircleMore,
+  Pencil,
+  Phone,
+  Trash,
+} from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "../../lib/util";
 import { DormContentProps } from "../../lib/types";
@@ -21,6 +27,22 @@ function DormDetail({ dorm }: DormContentProps) {
         <CardDescription>
           ผู้ดูแลบัญชี {dorm.landlord.name} - {formatDate(dorm.createdAt)}
         </CardDescription>
+        <div className="flex cols-2 items-center">
+          <div className="flex gap-2">
+            <Phone />
+            <p className="flex items-end text-sm ">Tel. {dorm.phoneNumber}</p>
+          </div>
+          <div className="flex gap-2 ml-3">
+            <MessageCircleMore />
+            <p className="flex items-end text-sm">ID Line: {dorm.idLine}</p>
+          </div>
+          <Button asChild variant={"ghost"}>
+            <Link href={`${dorm?.socialMediaLink}`}>
+              <ExternalLink />
+              Link
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground text-md mb-6">
