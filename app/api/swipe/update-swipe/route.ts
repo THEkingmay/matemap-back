@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { id, target_id, action } = body;
-
+    // console.log(body)
     // 2. ตรวจสอบว่ามีข้อมูลครบถ้วน
     if (!id || !target_id || !action) {
       return NextResponse.json(
@@ -131,7 +131,9 @@ export async function POST(req: NextRequest) {
           },
           { status: 200 } // ระบุ status code ให้ชัดเจน
         );
-      }
+    }
+
+    return NextResponse.json({message : 'ปัดผ่านสำเร็จ'}  , {status : 200})
   } catch (err) {
     console.error("Server Error:", err);
     return NextResponse.json(

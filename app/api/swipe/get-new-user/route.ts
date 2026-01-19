@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({data:newCandidates , length : newCandidates.length});
 
     } catch (err) {
+        console.log(err)
         return NextResponse.json({ error: (err as Error).message }, { status: 500 });
     }
 }
