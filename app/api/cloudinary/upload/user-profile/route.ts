@@ -1,84 +1,103 @@
 import { NextRequest, NextResponse } from "next/server";
 import cloudinary from "@/configs/cloudinary";
+import supabase from "@/configs/supabase";
 import { validateRequest } from "@/utils/token";
 
-// User05
-// http://localhost:3000/api/cloudinary/upload?userId=1a2dc8d3-4478-4767-8d43-266783452d0f
-// Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFhMmRjOGQzLTQ0NzgtNDc2Ny04ZDQzLTI2Njc4MzQ1MmQwZiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzY4ODQwMDkzLCJleHAiOjE3Njg5MjY0OTN9.5UFPb781rxyAfFlpO70oDSqfd_3xPjRm5f1qC89jWpc
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. อ่าน userId จาก query
     const userId = req.nextUrl.searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Missing userId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
 
-    // 2.ตรวจสิทธิ์ (token ต้องเป็นของ userId)
+    // ตรวจ token ว่าเป็นเจ้าของบัญชี
     const isAuthorized = await validateRequest(req, userId);
-
     if (!isAuthorized) {
       return NextResponse.json(
-        { message: "คุณไม่มีสิทธิ์อัปโหลดในนามบัญชีนี้" },
+        { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
-    // 3. รับไฟล์
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
     if (!file) {
+      return NextResponse.json({ error: "No file" }, { status: 400 });
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: "No file uploaded" },
-        { status: 400 }
+        { error: "Only jpeg/png/webp allowed" },
+        { status: 415 }
       );
     }
 
-    // 4. ตรวจขนาดไฟล์
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "File size exceeds 5 MB" },
+        { error: "Max file size 5MB" },
         { status: 413 }
       );
     }
 
-    // 5.แปลง File → Buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    // ดึงรูปเก่า (ถ้ามี)
+    const { data: oldProfile } = await supabase
+      .from("user_detail")
+      .select("image_public_id")
+      .eq("id", userId)
+      .single();
 
-    // 6. Upload ไป Cloudinary (แยก folder ตาม user)
+    // ลบรูปเก่าใน Cloudinary
+    if (oldProfile?.image_public_id) {
+      await cloudinary.uploader.destroy(
+        oldProfile.image_public_id
+      );
+    }
+
+    // Upload ใหม่
+    const buffer = Buffer.from(await file.arrayBuffer());
+
     const uploadResult = await new Promise<any>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
-          folder: `matemap/users/${userId}`,
+          folder: `matemap/users/${userId}/profile`,
           resource_type: "image",
+          transformation: [
+            { width: 400, height: 400, crop: "fill" },
+          ],
         },
-        (error, result) => {
-          if (error) reject(error);
+        (err, result) => {
+          if (err) reject(err);
           else resolve(result);
         }
       ).end(buffer);
     });
 
-    // 7️⃣ ส่งผลลัพธ์กลับ
+    // update Supabase
+    // await supabase
+    //   .from("user_detail")
+    //   .update({
+    //     image_url: uploadResult.secure_url,
+    //     image_public_id: uploadResult.public_id,
+    //   })
+    //   .eq("id", userId);
+
     return NextResponse.json({
-      message: "Upload success",
-      uploaded_by: userId,
-      url: uploadResult.secure_url,
-      public_id: uploadResult.public_id,
+      message: "Upload success", 
+      uploaded_by: userId, 
+      url: uploadResult.secure_url, 
+      public_id: uploadResult.public_id, 
       size: file.size,
     });
 
   } catch (err: any) {
+    console.error(err);
     return NextResponse.json(
-      { error: err.message },
+      { error: "Upload failed" },
       { status: 500 }
     );
   }
