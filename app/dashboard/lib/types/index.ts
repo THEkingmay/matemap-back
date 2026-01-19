@@ -17,7 +17,7 @@ export interface DormListProps {
     phoneNumber: string;
     idLine?: string;
     socialMediaLink?: string;
-    role : 'member' | 'user' | 'service'
+    role : 'member' | 'user' | 'service' // Needed?
 };
 
 export interface DormCardProps {
@@ -55,6 +55,6 @@ export interface DormContentProps {
       name: string;
     };
     phoneNumber: string;
-    idLine: string;
+    idLine?: string; // fix type add '?'
     socialMediaLink?: string;
 };
