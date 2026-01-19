@@ -4,7 +4,6 @@ const pendingPosts = [
   {
     id: 1,
     user: "สมชาย ใจดี",
-    type: "ขายสัญญา",
     dorm: "หอพักอินดี้",
     price: "8,500",
     date: "2025-01-18",
@@ -12,7 +11,6 @@ const pendingPosts = [
   {
     id: 2,
     user: "วิภา สุขใจ",
-    type: "ขายสัญญา",
     dorm: "ยูนิค เพลส",
     price: "6,000",
     date: "2025-01-17",
@@ -20,7 +18,6 @@ const pendingPosts = [
   {
     id: 3,
     user: "ธนา รุ่งเรือง",
-    type: "รับซื้อสัญญา",
     dorm: "เดอะ นิช",
     price: "7,500",
     date: "2025-01-17",
@@ -39,13 +36,7 @@ function PostsTab({ activeTab }: Props) {
           <div className="mb-4">
             <div className="flex gap-2">
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">
-                ทั้งหมด (3)
-              </button>
-              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-                ขายสัญญา (2)
-              </button>
-              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-                รับซื้อสัญญา (1)
+                ขายสัญญา (3)
               </button>
               <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
                 อนุมัติแล้ว (10)
@@ -63,7 +54,7 @@ function PostsTab({ activeTab }: Props) {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
-                        {post.type}
+                        ขายสัญญา
                       </span>
                       <span className="text-sm text-gray-500">{post.date}</span>
                     </div>
