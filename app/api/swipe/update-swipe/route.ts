@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import supabase from "@/configs/supabase";
-import { verifyToken } from "@/utils/token";
+import { validateRequest } from "@/utils/token";
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,27 +24,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const authHeader = req.headers.get('Authorization');
-    
-    // ตรวจสอบว่ามี Header และเป็น format "Bearer <token>" หรือไม่
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-       return NextResponse.json({ error: "Missing or invalid Authorization header" }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1]; // ดึงเฉพาะตัว Token ออกมา (ตัดคำว่า Bearer)
-
-    // ตรวจสอบความถูกต้องของ Token
-    const user = await verifyToken(token);
-    
-    if (!user) {
-        return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
-    }
-
-    if (id !== user.id) {
-       return NextResponse.json(
-         { error: "Forbidden: คุณไม่สามารถทำรายการแทนผู้อื่นได้" },
-         { status: 403 }
-       );
+    const isAuthorized = await validateRequest(req , id)
+    if(!isAuthorized) {
+      return NextResponse.json({message : 'คุณไม่มีสิทธิในการกระทำนี้'} , {status : 401})
     }
 
     // 3. ตรวจสอบชนิดข้อมูล
@@ -98,7 +80,7 @@ export async function POST(req: NextRequest) {
     // ❤️ Match Logic: ตรวจสอบว่า "ใจตรงกัน" หรือไม่
     // ---------------------------------------------------------
     let isMatch = false;
-
+    let createdRoom = null;
     // เราจะเช็ค Match ก็ต่อเมื่อเรากด "Like" เท่านั้น (ถ้า Pass ไม่ต้องเช็ค)
     if (action === "like") {
         // เช็คว่าอีกฝ่าย (target_id) เคย Like เรา (owner_id) มาก่อนหน้านี้ไหม
@@ -114,15 +96,16 @@ export async function POST(req: NextRequest) {
             // เจอว่าเขา Like เรามาเหมือนกัน! -> สร้าง Match
             isMatch = true;
             
-            const { error: matchError } = await supabase
-                .from("matches") // สมมติชื่อตาราง matches
-                .insert({ 
-                    user1_id: id, 
-                    user2_id: target_id 
-                });
+            const [user1_id , user2_id] = [id , target_id].sort()
 
-            if (matchError) {
-                console.error("Failed to create match record:", matchError);
+            // สร้างห้องแชท ในตาราง room_chat โดยให้ user1_id = id , user2_id = target_id , room_chat_type= "match"
+            const { error : createRoomError} = await supabase.from('room_chat')
+            .insert({user1_id : user1_id , user2_id : user2_id , room_chat_type: "match"})
+            .select()
+            .single()
+
+            if(createRoomError){
+              return NextResponse.json({message : "เกิดข้อผิดพลาดในการสร้างห้องแชทหลังจากแมทช์"} , {status : 400})
             }
         }
     }
