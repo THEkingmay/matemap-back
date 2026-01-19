@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import DormDetail from "../../components/dorms/dorm-detail";
 
 const mockupDorm = {
@@ -17,16 +16,12 @@ const mockupDorm = {
   landlord: {
     name: "นายสมชาย ใจดี",
   },
+  phoneNumber: "081-234-5678",
+  idLine: "@suksanbai",
 };
 
 async function DormDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const id = Number(await params);
-
-  // const dorm = await getDormByID(id);
-
-  // if (!dorm) {
-  //   notFound();
-  // }
 
   return (
     <main className="py-10">

@@ -10,7 +10,7 @@ import Link from "next/link";
 import { DormCardProps } from "../../lib/types";
 import { formatDate } from "../../lib/util";
 
-function DormCard({ dorm }: DormCardProps) {
+function DormCard({ dorm }:{dorm : DormCardProps}) {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader>

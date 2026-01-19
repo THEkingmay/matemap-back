@@ -19,7 +19,7 @@ type DormEditProps = {
   dormId: number;
 };
 
-function DormEdit({ dorm }: DormContentProps) {
+function DormEdit({ dorm }: { dorm : DormContentProps}) {
   const router = useRouter();
 
   return (

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import supabase from "@/configs/supabase";
-import { verifyToken } from "@/utils/token";
+import { validateRequest, verifyToken } from "@/utils/token";
 
 
 // http://localhost:3000/api/swipe/get-new-user?id=b01f3c4b-85b4-4c6a-94f0-06c663c5d4ec&&exclude=b3941b09-229f-457b-b98f-dcb9416454f3,8eee78cd-d936-474f-967c-3a974b4cb8de
@@ -15,28 +15,9 @@ export async function GET(req: NextRequest) {
     const bufferIds = excludeParam ? excludeParam.split(',') : [];
     const LIMIT = 20;
 
-    const authHeader = req.headers.get('Authorization');
-        
-    // ตรวจสอบว่ามี Header และเป็น format "Bearer <token>" หรือไม่
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return NextResponse.json({ error: "Missing or invalid Authorization header" }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1]; // ดึงเฉพาะตัว Token ออกมา (ตัดคำว่า Bearer)
-
-    // ตรวจสอบความถูกต้องของ Token
-    const user = await verifyToken(token);
+    const isAuthorized = await validateRequest(req , id)
     
-    if (!user) {
-        return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
-    }
-
-    if (id !== user.id) {
-        return NextResponse.json(
-            { error: "Forbidden: คุณไม่สามารถทำรายการแทนผู้อื่นได้" },
-            { status: 403 }
-        );
-    }
+    if(!isAuthorized) return NextResponse.json({ message : 'คุณไม่มีสิทธิทำรายการแทนผู้อื่น' } , {status : 409})
 
     try {
         

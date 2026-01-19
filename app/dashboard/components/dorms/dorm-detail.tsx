@@ -19,7 +19,7 @@ import { formatDate } from "../../lib/util";
 import { DormContentProps } from "../../lib/types";
 import DormDeleteAlert from "./dorm-delete-alert";
 
-function DormDetail({ dorm }: DormContentProps) {
+function DormDetail({ dorm }: {dorm : DormContentProps}) {
   return (
     <Card>
       <CardHeader>

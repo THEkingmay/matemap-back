@@ -1,5 +1,4 @@
 export interface DormListProps {
-  dorms: Array<{
     id: number;
     name: string;
     address: {
@@ -18,11 +17,10 @@ export interface DormListProps {
     phoneNumber: string;
     idLine?: string;
     socialMediaLink?: string;
-  }>;
-}
+    role : 'member' | 'user' | 'service'
+};
 
 export interface DormCardProps {
-  dorm: {
     id: number;
     name: string;
     address: {
@@ -39,10 +37,8 @@ export interface DormCardProps {
       name: string;
     };
   };
-}
 
 export interface DormContentProps {
-  dorm: {
     id: number;
     name: string;
     address: {
@@ -61,5 +57,4 @@ export interface DormContentProps {
     phoneNumber: string;
     idLine: string;
     socialMediaLink?: string;
-  };
-}
+};

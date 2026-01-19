@@ -16,6 +16,8 @@ const mockupDorm = {
   landlord: {
     name: "นายสมชาย ใจดี",
   },
+  phoneNumber: "081-234-5678",
+  idLine: "@suksanbai",
 };
 
 async function DormEditPage({ params }: { params: Promise<{ id: string }> }) {

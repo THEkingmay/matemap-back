@@ -1,7 +1,7 @@
 import DormList from "../components/dorms/dorm-list";
 import { DormListProps } from "../lib/types";
 
-const mockupDorms: DormListProps["dorms"] = [
+const mockupDorms: DormListProps[] = [
   {
     id: 1,
     name: "หอพักสุขสบาย",
@@ -19,6 +19,8 @@ const mockupDorms: DormListProps["dorms"] = [
       name: "นายสมชาย ใจดี",
     },
     role: "member",
+    phoneNumber: "081-234-5678",
+  idLine: "@suksanbai",
   },
   {
     id: 2,
@@ -38,6 +40,8 @@ const mockupDorms: DormListProps["dorms"] = [
       name: "นางสาวอรทัย รักดี",
     },
     role: "member",
+    phoneNumber: "081-234-5678",
+  idLine: "@suksanbai",
   },
 ];
 
