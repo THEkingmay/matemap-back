@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import type { JwtPayload } from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
+import { NextRequest } from 'next/server'
 
 const JWT_SECRET = process.env.JWT_SECRET!
 const BCRYPT_SALT = parseInt(process.env.BCRYPT_SALT!) || 10
@@ -44,4 +45,27 @@ export async function verifyToken(token : string){
         console.log(err)
         throw err
     }
+}
+
+export async function validateRequest(req: NextRequest, targetId: string): Promise<boolean> {
+  const authHeader = req.headers.get("authorization");
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return false;
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const user = await verifyToken(token);
+
+    if (!user || user.id !== targetId) {
+      return false; 
+    }
+
+    return true; 
+  } catch (error) {
+
+    return false;
+  }
 }
