@@ -107,17 +107,31 @@ export async function POST(req: NextRequest) {
             if(createRoomError){
               return NextResponse.json({message : "เกิดข้อผิดพลาดในการสร้างห้องแชทหลังจากแมทช์"} , {status : 400})
             }
-        }
-    }
-
-    // 7. ส่งค่าตอบกลับเมื่อสำเร็จ
-    return NextResponse.json(
-      { 
-        message: isMatch ? "It's a Match! ใจตรงกัน!" : "บันทึกการปัดสำเร็จ",
-        is_match: isMatch 
-      },
-      { status: 201 }
-    );
+          
+           // 2. ดึงข้อมูล Target User (แก้ไข Syntax ตรงนี้)
+            const { data: targetData, error: fetchTargetError } = await supabase
+                .from('user_detail') // ต้องแน่ใจว่าชื่อตารางใน DB คือ user_detail (หรือ user_details)
+                .select('name')      // เลือกมาแค่ field ที่ต้องใช้ ประหยัด resource
+                .eq('id', target_id)
+                .single();
+          
+            let targetName : string = "" ,
+            // ตรวจสอบว่าดึงข้อมูลได้จริงไหม ก่อนกำหนดค่า
+            if (!fetchTargetError && targetData) {
+                targetName = targetData.name;
+            }
+          }
+          
+          // 7. ส่งค่าตอบกลับเมื่อสำเร็จ
+          return NextResponse.json(
+            { 
+                message: isMatch ? "It's a Match! ใจตรงกัน!" : "บันทึกการปัดสำเร็จ",
+                is_match: isMatch,
+                // ใช้ Optional Chaining หรือตัวแปรที่เตรียมไว้ ป้องกัน App Crash
+                target_name: targetName 
+            },
+            { status: 200 } // ระบุ status code ให้ชัดเจน
+          );
 
   } catch (err) {
     console.error("Server Error:", err);
