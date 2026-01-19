@@ -5,7 +5,7 @@ interface User{
     role : 'admin' | 'user' | 'member' , // นิสิต แอดมิน และหอพักที่สมัครรายเดือน
     created_at : string
 }
-interface UserCard {
+interface UserDetail {
   id: string;
   name: string;
   age?: number;
@@ -15,4 +15,4 @@ interface UserCard {
   image_url?: string;
 }
 
-export type {User , UserCard}
+export type {User , UserDetail}
