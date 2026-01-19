@@ -8,9 +8,9 @@ function DashboardStats() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <div className="flex items-center justify-between">
-            <div>
+            <div> 
               <p className="text-sm text-gray-600">รายได้รวม/เดือน</p>
-              <p className="text-2xl font-bold text-gray-900">฿25,500</p>
+              <p className="text-2xl font-bold text-gray-900 ">฿25,500</p>
             </div>
             <DollarSign className="text-green-600" size={32} />
           </div>

@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     // ❤️ Match Logic: ตรวจสอบว่า "ใจตรงกัน" หรือไม่
     // ---------------------------------------------------------
     let isMatch = false;
-    let createdRoom = null;
+    let targetName = ''
     // เราจะเช็ค Match ก็ต่อเมื่อเรากด "Like" เท่านั้น (ถ้า Pass ไม่ต้องเช็ค)
     if (action === "like") {
         // เช็คว่าอีกฝ่าย (target_id) เคย Like เรา (owner_id) มาก่อนหน้านี้ไหม
@@ -115,7 +115,6 @@ export async function POST(req: NextRequest) {
                 .eq('id', target_id)
                 .single();
           
-            let targetName : string = "" ,
             // ตรวจสอบว่าดึงข้อมูลได้จริงไหม ก่อนกำหนดค่า
             if (!fetchTargetError && targetData) {
                 targetName = targetData.name;
@@ -129,10 +128,10 @@ export async function POST(req: NextRequest) {
                 is_match: isMatch,
                 // ใช้ Optional Chaining หรือตัวแปรที่เตรียมไว้ ป้องกัน App Crash
                 target_name: targetName 
-            },
-            { status: 200 } // ระบุ status code ให้ชัดเจน
-          );
-
+          },
+          { status: 200 } // ระบุ status code ให้ชัดเจน
+        );
+      }
   } catch (err) {
     console.error("Server Error:", err);
     return NextResponse.json(
