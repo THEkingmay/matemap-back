@@ -3,7 +3,7 @@ import { DormListProps } from "../lib/types";
 
 const mockupDorms: DormListProps[] = [
   {
-    id: 1,
+    id: "1",
     name: "หอพักสุขสบาย",
     address: {
       number: "123/45",
@@ -20,10 +20,10 @@ const mockupDorms: DormListProps[] = [
     },
     role: "member",
     phoneNumber: "081-234-5678",
-  idLine: "@suksanbai",
+    idLine: "@suksanbai",
   },
   {
-    id: 2,
+    id: "2",
     name: "หอพักร่มเย็น",
     address: {
       number: "88/9",
@@ -41,7 +41,7 @@ const mockupDorms: DormListProps[] = [
     },
     role: "member",
     phoneNumber: "081-234-5678",
-  idLine: "@suksanbai",
+    idLine: "@suksanbai",
   },
 ];
 

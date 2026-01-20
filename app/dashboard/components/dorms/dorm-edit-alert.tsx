@@ -15,7 +15,7 @@ import {
 import { Save, Trash } from "lucide-react";
 
 type DormEditProps = {
-  dormId: number;
+  dormId: string;
 };
 
 function DormEditAlert({ dormId }: DormEditProps) {
