@@ -43,8 +43,6 @@ function ApprovedPostTab({ approvedPosts, activeSubTab }: ApprovedPostProps) {
                       <Eye size={20} />
                     </Link>
                   </button>
-                  <PostApproveAlert postID={post.id} />
-                  <PostDisapproveAlert postID={post.id} />
                 </div>
               </div>
             </div>
