@@ -1,7 +1,7 @@
 import DormDetail from "../../components/dorms/dorm-detail";
 
 const mockupDorm = {
-  id: 1,
+  id: "1",
   name: "หอพักสุขสบาย",
   address: {
     number: "123/45",
@@ -18,6 +18,7 @@ const mockupDorm = {
   },
   phoneNumber: "081-234-5678",
   idLine: "@suksanbai",
+  socialMediaLink: "https://youtu.be/0aBkyfz9anQ?si=46O06W9_V9ro01zp",
 };
 
 async function DormDetailPage({ params }: { params: Promise<{ id: string }> }) {

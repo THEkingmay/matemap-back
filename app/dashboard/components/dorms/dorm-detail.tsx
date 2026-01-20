@@ -19,7 +19,7 @@ import { formatDate } from "../../lib/util";
 import { DormContentProps } from "../../lib/types";
 import DormDeleteAlert from "./dorm-delete-alert";
 
-function DormDetail({ dorm }: {dorm : DormContentProps}) {
+function DormDetail({ dorm }: { dorm: DormContentProps }) {
   return (
     <Card>
       <CardHeader>
@@ -36,12 +36,14 @@ function DormDetail({ dorm }: {dorm : DormContentProps}) {
             <MessageCircleMore />
             <p className="flex items-end text-sm">ID Line: {dorm.idLine}</p>
           </div>
-          <Button asChild variant={"ghost"}>
-            <Link href={`${dorm?.socialMediaLink}`}>
-              <ExternalLink />
-              Link
-            </Link>
-          </Button>
+          {dorm?.socialMediaLink !== undefined && (
+            <Button asChild variant={"ghost"}>
+              <Link href={`${dorm?.socialMediaLink}`}>
+                <ExternalLink />
+                Link
+              </Link>
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
