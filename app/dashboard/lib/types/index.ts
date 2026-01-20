@@ -66,6 +66,23 @@ export interface DormTabProps {
     expire_date: Date;
 }
 
+// Contract Post Types (ContractPost สร้างตามที่ออกแบบไว้ใน Docs)
+export type ContractPost = {
+  contract_posts_id: string;
+  post_by: string;
+  title: string;
+  price: number;
+  dorm_number: string;
+  postalCode: string;
+  province: string;
+  city: string;
+  district: string;
+  street: string;
+  detail: string;
+  createdAt: string;
+  status: "อนุมัติแล้ว" | "รอการอนุมัติ";
+};
+
 export interface PendingPost {
     id: string;
     post_by: string;
