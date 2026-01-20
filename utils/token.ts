@@ -39,7 +39,7 @@ export async function verifyToken(token : string){
     try{
         if(!JWT_SECRET) throw new Error("ไม่มี JWT Secret")
             
-        console.log("Verifying token: " , token)
+        // console.log("Verifying token: " , token)
         return jwt.verify(token , JWT_SECRET) as UserPayload
     }catch(err){
         console.log(err)
