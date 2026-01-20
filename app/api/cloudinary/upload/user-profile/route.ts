@@ -78,13 +78,13 @@ export async function POST(req: NextRequest) {
     });
 
     // update Supabase
-    // await supabase
-    //   .from("user_detail")
-    //   .update({
-    //     image_url: uploadResult.secure_url,
-    //     image_public_id: uploadResult.public_id,
-    //   })
-    //   .eq("id", userId);
+    await supabase
+      .from("user_detail")
+      .update({
+        image_url: uploadResult.secure_url,
+        image_public_id: uploadResult.public_id,
+      })
+      .eq("id", userId);
 
     return NextResponse.json({
       message: "Upload success", 
@@ -94,8 +94,8 @@ export async function POST(req: NextRequest) {
       size: file.size,
     });
 
-  } catch (err: any) {
-    console.error(err);
+  } catch (err) {
+    console.error((err as  Error).message);
     return NextResponse.json(
       { error: "Upload failed" },
       { status: 500 }
