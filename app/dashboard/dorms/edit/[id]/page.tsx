@@ -1,7 +1,7 @@
 import DormEdit from "@/app/dashboard/components/dorms/dorm-edit";
 
 const mockupDorm = {
-  id: 1,
+  id: "1",
   name: "หอพักสุขสบาย",
   address: {
     number: "123/45",

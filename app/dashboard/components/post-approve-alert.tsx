@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -12,29 +10,30 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash } from "lucide-react";
+import { Check } from "lucide-react";
 
-type DormDeleteProps = {
-  dormId: string;
+type PostApproveProps = {
+  postID: string;
 };
 
-function DormDeleteAlert({ dormId }: DormDeleteProps) {
+function PostApproveAlert({ postID }: PostApproveProps) {
   return (
     <div className="ml-3">
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Trash className="h-4 w-4 mr-1" />
-            ลบ
-          </Button>
+          <button className="p-2 hover:bg-green-50 rounded-lg text-green-600">
+            <Check size={20} />
+          </button>
         </AlertDialogTrigger>
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>คุณต้องการลบหอพักนี้ใช่หรือไม่?</AlertDialogTitle>
+            <AlertDialogTitle>
+              คุณต้องการอนุมัติโพสต์นี้ใช่หรือไม่?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              การดำเนินการนี้ไม่สามารถย้อนกลับได้
-              และจะลบข้อมูลหอพักนี้ออกอย่างถาวร
+              การอนุมัติโพสต์นี้จะทำให้โพสต์ถูกเผยแพร่และแสดงต่อผู้ใช้งานทั่วไป
+              กรุณาตรวจสอบข้อมูลให้ถูกต้องก่อนดำเนินการ
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -42,11 +41,11 @@ function DormDeleteAlert({ dormId }: DormDeleteProps) {
             <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                console.log("delete dorm", dormId);
+                console.log("disapprove post", postID);
                 // TODO: call server action
               }}
             >
-              ยืนยันการลบ
+              อนุมัติ
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -55,4 +54,4 @@ function DormDeleteAlert({ dormId }: DormDeleteProps) {
   );
 }
 
-export default DormDeleteAlert;
+export default PostApproveAlert;

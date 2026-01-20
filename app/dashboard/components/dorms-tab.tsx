@@ -1,32 +1,23 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Search, Plus, MoreVertical } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const dormAccounts = [
   {
-    id: 1,
-    name: "หอพักอินดี้",
-    plan: "Premium",
-    price: "300",
-    status: "active",
-    nextBilling: "2025-02-01",
+    id: "1",
+    name: "หอพักสุขสบาย",
+    start_date: "2025-01-01",
+    expire_date: "2025-02-01",
   },
   {
-    id: 2,
-    name: "ยูนิค เพลส",
-    plan: "Free",
-    price: "0",
-    status: "active",
-    nextBilling: "2025-02-05",
-  },
-  {
-    id: 3,
-    name: "เดอะ นิช",
-    plan: "Premium",
-    price: "300",
-    status: "pending",
-    nextBilling: "2025-01-25",
+    id: "2",
+    name: "หอพักร่มเย็น",
+    start_date: "2025-01-05",
+    expire_date: "2025-02-05",
   },
 ];
 
@@ -36,6 +27,12 @@ type Props = {
 
 function DormTab({ activeTab }: Props) {
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredDormAccounts = dormAccounts.filter(dorm =>
+    dorm.name.toLowerCase().includes(normalizedSearch),
+  );
 
   return (
     <div>
@@ -51,6 +48,8 @@ function DormTab({ activeTab }: Props) {
                 <input
                   type="text"
                   placeholder="ค้นหาหอพัก..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
@@ -72,13 +71,7 @@ function DormTab({ activeTab }: Props) {
                     ชื่อหอพัก
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
-                    แพ็กเกจ
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
-                    ราคา/เดือน
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
-                    สถานะ
+                    วันเริ่มสมัคร
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
                     วันต่ออายุ
@@ -87,28 +80,36 @@ function DormTab({ activeTab }: Props) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {dormAccounts.map(dorm => (
-                  <tr key={dorm.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">{dorm.name}</td>
-                    <td className="px-4 py-3">{dorm.plan}</td>
-                    <td className="px-4 py-3">฿{dorm.price}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${dorm.status === "active" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}
-                      >
-                        {dorm.status === "active" ? "ใช้งาน" : "รอชำระ"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {dorm.nextBilling}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button className="p-1 hover:bg-gray-100 rounded">
-                        <MoreVertical size={20} className="text-gray-400" />
-                      </button>
+                {filteredDormAccounts.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-4 py-6 text-center text-gray-500"
+                    >
+                      ไม่พบหอพักที่ค้นหา
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredDormAccounts.map(dorm => (
+                    <tr key={dorm.id} className="hover:bg-gray-50">
+                      <td
+                        className="px-4 py-3 hover:underline hover:cursor-pointer"
+                        onClick={() =>
+                          router.push(`/dashboard/dorms/${dorm.id}`)
+                        }
+                      >
+                        {dorm.name}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        {dorm.start_date}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        {dorm.expire_date}
+                      </td>
+                      <td className="px-4 py-3"></td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
