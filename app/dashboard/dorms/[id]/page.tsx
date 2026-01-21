@@ -1,33 +1,52 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { getDormByID } from "../../lib/db/dorms/queries";
 import DormDetail from "../../components/dorms/dorm-detail";
+import { DormContentProps } from "../../lib/types";
 
-const mockupDorm = {
-  id: "1",
-  name: "หอพักสุขสบาย",
-  address: {
-    number: "123/45",
-    street: "ถนนพระรามที่ 1",
-    district: "แขวงปทุมวัน",
-    city: "เขตปทุมวัน",
-    province: "กรุงเทพมหานคร",
-    postalCode: "10330",
-  },
-  detail: "ใกล้มหาวิทยาลัย เดินทางสะดวก อาคาร 5 ชั้น มีลิฟต์และที่จอดรถ",
-  createdAt: new Date("2025-01-01"),
-  landlord: {
-    name: "นายสมชาย ใจดี",
-  },
-  phoneNumber: "081-234-5678",
-  idLine: "@suksanbai",
-  socialMediaLink: "https://youtu.be/0aBkyfz9anQ?si=46O06W9_V9ro01zp",
-};
+function DormDetailPage() {
+  const { id } = useParams<{ id: string }>();
 
-async function DormDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const id = Number(await params);
+  const [dorm, setDorm] = useState<DormContentProps | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+
+    getDormByID(id)
+      .then((data: DormContentProps) => {
+        setDorm(data);
+      })
+      .catch(err => {
+        console.error(err);
+        setError("ไม่สามารถโหลดข้อมูลหอพักได้");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) {
+    return <div>กำลังโหลดข้อมูล...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
+  if (!dorm) {
+    return <div className="py-10 text-center">ไม่พบข้อมูลหอพัก</div>;
+  }
+
+  // console.log(dorm);
 
   return (
     <main className="py-10">
       <div className="max-w-4xl mx-auto">
-        <DormDetail dorm={mockupDorm}></DormDetail>
+        <DormDetail dorm={dorm} />
       </div>
     </main>
   );

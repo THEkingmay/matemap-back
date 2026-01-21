@@ -7,38 +7,44 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ExternalLink,
-  MessageCircleMore,
-  Pencil,
-  Phone,
-  Trash,
-} from "lucide-react";
+import { ExternalLink, MessageCircleMore, Pencil, Phone } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "../../lib/util";
 import { DormContentProps } from "../../lib/types";
 import DormDeleteAlert from "./dorm-delete-alert";
 
 function DormDetail({ dorm }: { dorm: DormContentProps }) {
+  const addressDetails = [
+    dorm.district,
+    dorm.sub_district,
+    dorm.city,
+    dorm.province,
+    dorm.postal_code,
+  ].filter(Boolean);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-3xl">{dorm.name}</CardTitle>
         <CardDescription>
-          ผู้ดูแลบัญชี {dorm.landlord.name} - {formatDate(dorm.createdAt)}
+          ผู้ดูแลบัญชี {dorm.owner_name ?? "-"} -{" "}
+          {formatDate(new Date(dorm.created_at))}
+          {/* waiting for the landloard name */}
         </CardDescription>
         <div className="flex cols-2 items-center">
           <div className="flex gap-2">
             <Phone />
-            <p className="flex items-end text-sm ">Tel. {dorm.phoneNumber}</p>
+            <p className="flex items-end text-sm ">
+              Tel. {dorm.owner_tel ?? "-"}
+            </p>
           </div>
           <div className="flex gap-2 ml-3">
             <MessageCircleMore />
-            <p className="flex items-end text-sm">ID Line: {dorm.idLine}</p>
+            <p className="flex items-end text-sm">ID Line: {dorm?.id_line}</p>
           </div>
-          {dorm?.socialMediaLink !== undefined && (
+          {dorm?.social_media_link !== undefined && (
             <Button asChild variant={"ghost"}>
-              <Link href={`${dorm?.socialMediaLink}`}>
+              <Link href={`${dorm?.social_media_link}`}>
                 <ExternalLink />
                 Link
               </Link>
@@ -48,7 +54,7 @@ function DormDetail({ dorm }: { dorm: DormContentProps }) {
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground text-md mb-6">
-          {Object.values(dorm.address).join(" ")}
+          {addressDetails.join(" ")}
         </p>
 
         <p className="text-muted-foreground text-md mb-6">{dorm.detail}</p>
