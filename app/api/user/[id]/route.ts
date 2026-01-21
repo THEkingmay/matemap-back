@@ -72,7 +72,6 @@ export async function PUT(
     // 2. รับข้อมูลที่ต้องการแก้ (Parse Body)
     const body = await req.json();
 
-
     // 3. ดำเนินการอัปเดต (Update Operation)
     const { data, error } = await supabase
       .from("user_detail")
@@ -86,7 +85,7 @@ export async function PUT(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data as UserDetail, { status: 200 });
+    return NextResponse.json(body as UserDetail, { status: 200 });
 
   } catch (err) {
     console.error("Unexpected Error:", err);

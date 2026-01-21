@@ -65,19 +65,14 @@ export async function getDormDetailDashboard(){
                 ? new Date(memberSub.expired_date) > new Date() 
                 : false
 
-            console.log({
-                 dorm_id : memberDorm.id ,
-                name : memberDorm.name , 
-                user_id : memberDorm.user_id ,
-                isActive : isActive ,
-                expire_date : memberSub.expired_date 
-            })
+           
             return {
                 dorm_id : memberDorm.id ,
                 name : memberDorm.name , 
                 user_id : memberDorm.user_id ,
                 isActive : isActive ,
                 expire_date : memberSub.expired_date ,
+                owner_name : memberDorm.owner_name
             }
         })
 

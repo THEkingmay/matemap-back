@@ -12,6 +12,7 @@ export interface DormDeailDashboardType {
   name: string; // ชื่อหอพัก
   user_id: string; // ไอดีเจ้าของหอ
   expire_date: string;
+  owner_name : string;
   isActive: boolean
 }
 
@@ -103,14 +104,15 @@ function DormTab({ activeTab }: Props) {
                     ไอดีผู้ใช้
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                   ชื่อนิติ
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
                     สถานะ
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
                     วันหมดอายุ
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
-                    จัดการ
-                  </th>
+                 
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -149,6 +151,9 @@ function DormTab({ activeTab }: Props) {
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {dorm.user_id}
                       </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        {dorm.owner_name || 'ไม่มีชื่อนิติ'}
+                      </td>
                       {/* เพิ่ม Column แสดงสถานะ isActive ให้ชัดเจนขึ้น */}
                        <td className="px-4 py-3 text-sm">
                         <span className={`px-2 py-1 rounded-full text-xs ${
@@ -162,12 +167,7 @@ function DormTab({ activeTab }: Props) {
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {dorm.expire_date}
                       </td>
-                      {/* ใส่ปุ่ม Action (MoreVertical) ที่ Import มาแต่ยังไม่ได้ใช้ */}
-                      <td className="px-4 py-3 text-right">
-                        <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
-                           <MoreVertical size={18} />
-                        </button>
-                      </td>
+                        
                     </tr>
                   ))
                 )}
