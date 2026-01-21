@@ -9,13 +9,13 @@ export async function POST(req: NextRequest) {
 
     if (!body) {
       return NextResponse.json(
-        { error: "รูปแบบ JSON ไม่ถูกต้อง" }, 
+        { error: "รูปแบบ JSON ไม่ถูกต้อง" },
         { status: 400 }
       );
     }
 
     const { id, target_id, action } = body;
-    // console.log(body)
+
     // 2. ตรวจสอบว่ามีข้อมูลครบถ้วน
     if (!id || !target_id || !action) {
       return NextResponse.json(
@@ -24,9 +24,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isAuthorized = await validateRequest(req , id)
-    if(!isAuthorized) {
-      return NextResponse.json({message : 'คุณไม่มีสิทธิในการกระทำนี้'} , {status : 401})
+    const isAuthorized = await validateRequest(req, id);
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { message: "คุณไม่มีสิทธิในการกระทำนี้" },
+        { status: 401 }
+      );
     }
 
     // 3. ตรวจสอบชนิดข้อมูล
@@ -46,7 +49,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. ตรวจสอบค่า Action
-    const allowedActions = ["like", "pass"]; 
+    const allowedActions = ["like", "pass"];
     if (!allowedActions.includes(action)) {
       return NextResponse.json(
         { error: `Action ไม่ถูกต้อง ค่าที่ยอมรับได้คือ: ${allowedActions.join(", ")}` },
@@ -63,12 +66,11 @@ export async function POST(req: NextRequest) {
 
     if (insertError) {
       if (insertError.code === "23505") { // Duplicate key
-         return NextResponse.json(
+        return NextResponse.json(
           { error: "คุณได้ทำการปัดเลือกผู้ใช้นี้ไปแล้ว" },
           { status: 409 }
         );
       }
-      
       console.error("Supabase Error (Insert Swipe):", insertError);
       return NextResponse.json(
         { error: "ไม่สามารถบันทึกข้อมูลการปัดได้" },
@@ -77,63 +79,79 @@ export async function POST(req: NextRequest) {
     }
 
     // ---------------------------------------------------------
-    // ❤️ Match Logic: ตรวจสอบว่า "ใจตรงกัน" หรือไม่
+    // ❤️ Match Logic
     // ---------------------------------------------------------
-    let isMatch = false;
-    let targetName = ''
-    // เราจะเช็ค Match ก็ต่อเมื่อเรากด "Like" เท่านั้น (ถ้า Pass ไม่ต้องเช็ค)
-    if (action === "like") {
-        // เช็คว่าอีกฝ่าย (target_id) เคย Like เรา (owner_id) มาก่อนหน้านี้ไหม
-        const { data: reciprocalLike } = await supabase
-            .from("card_swipes")
-            .select("*")
-            .eq("owner_id", target_id) // เขาเป็นคนกด
-            .eq("target_id", id)       // กดหาเรา
-            .eq("action", "like")      // และต้องเป็น like
-            .single(); // เอาแค่รายการเดียวพอ
+    
+    // กรณีที่กด Pass ไม่ต้องเช็ค Match ให้จบการทำงานเลย
+    if (action === "pass") {
+         return NextResponse.json({ message: "ปัดผ่านสำเร็จ", is_match: false }, { status: 200 });
+    }
 
-        if (reciprocalLike) {
-            // เจอว่าเขา Like เรามาเหมือนกัน! -> สร้าง Match
-            isMatch = true;
-            
-            const [user1_id , user2_id] = [id , target_id].sort()
+    // กรณีที่กด Like: เช็คว่าอีกฝ่าย (target_id) เคย Like เราไหม
+    const { data: reciprocalLike } = await supabase
+        .from("card_swipes")
+        .select("*")
+        .eq("owner_id", target_id) 
+        .eq("target_id", id)       
+        .eq("action", "like")      
+        .single();
 
-            // สร้างห้องแชท ในตาราง room_chat โดยให้ user1_id = id , user2_id = target_id , room_chat_type= "match"
-            const { error : createRoomError} = await supabase.from('room_chat')
-            .insert({user1_id : user1_id , user2_id : user2_id , room_chat_type: "match"})
+    // ---------------------------------------------------------
+    // SCENARIO A: MATCH HAPPENED (ใจตรงกัน)
+    // ---------------------------------------------------------
+    if (reciprocalLike) {
+        // จัดเรียง ID เพื่อให้การค้นหาห้องแชทในอนาคตง่ายขึ้น (User1 < User2 เสมอ)
+        const [user1_id, user2_id] = [id, target_id].sort();
+
+        // สร้างห้องแชท
+        const { data: newRoom, error: createRoomError } = await supabase
+            .from("room_chat")
+            .insert({ user1_id: user1_id, user2_id: user2_id, room_chat_type: "match" })
             .select()
-            .single()
+            .single();
 
-            if(createRoomError){
-              return NextResponse.json({message : "เกิดข้อผิดพลาดในการสร้างห้องแชทหลังจากแมทช์"} , {status : 400})
-            }
-          
-           // 2. ดึงข้อมูล Target User (แก้ไข Syntax ตรงนี้)
-            const { data: targetData, error: fetchTargetError } = await supabase
-                .from('user_detail') // ต้องแน่ใจว่าชื่อตารางใน DB คือ user_detail (หรือ user_details)
-                .select('name')      // เลือกมาแค่ field ที่ต้องใช้ ประหยัด resource
-                .eq('id', target_id)
-                .single();
-          
-            // ตรวจสอบว่าดึงข้อมูลได้จริงไหม ก่อนกำหนดค่า
-            if (!fetchTargetError && targetData) {
-                targetName = targetData.name;
-            }
-          }
-          
-          // 7. ส่งค่าตอบกลับเมื่อสำเร็จ
-          return NextResponse.json(
-            { 
-                message: isMatch ? "It's a Match! ใจตรงกัน!" : "บันทึกการปัดสำเร็จ",
-                is_match: isMatch,
-                target_id : target_id ,
-                target_name: targetName 
-          },
-          { status: 200 } // ระบุ status code ให้ชัดเจน
+        if (createRoomError || !newRoom) {
+            console.error("Room Creation Error:", createRoomError);
+            // แจ้ง Client ว่า Match แล้ว แต่สร้างห้องไม่สำเร็จ (Client ควร Handle กรณีนี้)
+            return NextResponse.json(
+                { message: "Match แล้ว แต่เกิดข้อผิดพลาดในการสร้างห้องแชท", is_match: true },
+                { status: 500 }
+            );
+        }
+
+        // ดึงชื่อคู่ Match (เฉพาะตอน Match เท่านั้นถึงค่อยดึง เพื่อประหยัด Resource)
+        let targetName = "";
+        const { data: targetData } = await supabase
+            .from("user_detail")
+            .select("name")
+            .eq("id", target_id)
+            .single();
+
+        if (targetData) {
+            targetName = targetData.name;
+        }
+
+        // Return ทันทีเมื่อจบกระบวนการ Match
+        return NextResponse.json(
+            {
+                message: "It's a Match! ใจตรงกัน!",
+                is_match: true,
+                room_id: newRoom.id,
+                target_name: targetName,
+            },
+            { status: 200 }
         );
     }
 
-    return NextResponse.json({message : 'ปัดผ่านสำเร็จ'}  , {status : 200})
+
+    return NextResponse.json(
+        {
+            message: "บันทึกการกดถูกใจสำเร็จ",
+            is_match: false,
+        },
+        { status: 200 }
+    );
+
   } catch (err) {
     console.error("Server Error:", err);
     return NextResponse.json(
