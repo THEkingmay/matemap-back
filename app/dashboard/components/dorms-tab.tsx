@@ -81,7 +81,7 @@ function DormTab({ activeTab }: Props) {
               </div>
             </div>
             <button
-              onClick={() => router.push("/dashboard/dorms/create")}
+              onClick={() => router.push("/dashboard/create-member-service")}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors"
             >
               <Plus size={20} />
