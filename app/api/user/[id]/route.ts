@@ -85,7 +85,7 @@ export async function PUT(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(body as UserDetail, { status: 200 });
+    return NextResponse.json(data as UserDetail, { status: 200 });
 
   } catch (err) {
     console.error("Unexpected Error:", err);
