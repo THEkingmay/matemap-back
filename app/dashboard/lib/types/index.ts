@@ -120,3 +120,7 @@ export interface FormEditData {
     id_line?: string;
     social_media_link?: string;
 }
+
+export interface FormErrors {
+  [key: string]: string;
+}
