@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react"; // เพิ่ม useEffect
 import { getDormDetailDashboard } from "../dorms/action";
 import { toast } from "react-toastify";
+import { formatDate } from "../lib/util";
 
 // Interface คงเดิมตามที่คุณเมกำหนด
 export interface DormDeailDashboardType {
@@ -12,8 +13,8 @@ export interface DormDeailDashboardType {
   name: string; // ชื่อหอพัก
   user_id: string; // ไอดีเจ้าของหอ
   expire_date: string;
-  owner_name : string;
-  isActive: boolean
+  owner_name: string;
+  isActive: boolean;
 }
 
 type Props = {
@@ -23,10 +24,12 @@ type Props = {
 function DormTab({ activeTab }: Props) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // 1. แก้ไขการประกาศ State ให้สมบูรณ์
   const [loading, setLoading] = useState(false);
-  const [dormAccounts, setDormAccounts] = useState<DormDeailDashboardType[]>([]);
+  const [dormAccounts, setDormAccounts] = useState<DormDeailDashboardType[]>(
+    [],
+  );
 
   const fetchData = async () => {
     try {
@@ -36,10 +39,9 @@ function DormTab({ activeTab }: Props) {
       if (!data.success) throw new Error(data.message);
 
       // ใช้ data.data หรือ array ว่างเพื่อป้องกัน null
-      if(data.data){
-        setDormAccounts(data.data); 
+      if (data.data) {
+        setDormAccounts(data.data);
       }
-      
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -55,8 +57,8 @@ function DormTab({ activeTab }: Props) {
   }, [activeTab]);
 
   const normalizedSearch = searchTerm.trim().toLowerCase();
-  const filteredDormAccounts = dormAccounts.filter((dorm) =>
-    dorm.name.toLowerCase().includes(normalizedSearch)
+  const filteredDormAccounts = dormAccounts.filter(dorm =>
+    dorm.name.toLowerCase().includes(normalizedSearch),
   );
 
   return (
@@ -75,7 +77,7 @@ function DormTab({ activeTab }: Props) {
                   type="text"
                   placeholder="ค้นหาหอพัก..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -104,7 +106,7 @@ function DormTab({ activeTab }: Props) {
                     ไอดีผู้ใช้
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
-                   ชื่อนิติ
+                    ชื่อนิติ
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
                     สถานะ
@@ -112,15 +114,18 @@ function DormTab({ activeTab }: Props) {
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
                     วันหมดอายุ
                   </th>
-                 
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                    <td
+                      colSpan={6}
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
                       <div className="flex justify-center items-center gap-2">
-                         <Loader2 className="animate-spin" size={20} /> กำลังโหลดข้อมูล...
+                        <Loader2 className="animate-spin" size={20} />{" "}
+                        กำลังโหลดข้อมูล...
                       </div>
                     </td>
                   </tr>
@@ -134,9 +139,12 @@ function DormTab({ activeTab }: Props) {
                     </td>
                   </tr>
                 ) : (
-                  filteredDormAccounts.map((dorm) => (
+                  filteredDormAccounts.map(dorm => (
                     // 4. แก้ key จาก dorm.id เป็น dorm.dorm_id ตาม Interface
-                    <tr key={dorm.dorm_id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={dorm.dorm_id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td
                         className="px-4 py-3 font-mono text-sm text-blue-600 hover:underline cursor-pointer"
                         onClick={() =>
@@ -152,22 +160,23 @@ function DormTab({ activeTab }: Props) {
                         {dorm.user_id}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        {dorm.owner_name || 'ไม่มีชื่อนิติ'}
+                        {dorm.owner_name || "ไม่มีชื่อนิติ"}
                       </td>
                       {/* เพิ่ม Column แสดงสถานะ isActive ให้ชัดเจนขึ้น */}
-                       <td className="px-4 py-3 text-sm">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          dorm.isActive  // เช็คตามค่าจริงที่ Database ส่งมา
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-red-100 text-red-700'
-                        }`}>
-                          {dorm.isActive ? 'Active' : 'Expired'}
+                      <td className="px-4 py-3 text-sm">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            dorm.isActive // เช็คตามค่าจริงที่ Database ส่งมา
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {dorm.isActive ? "Active" : "Expired"}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        {dorm.expire_date}
+                        {formatDate(new Date(dorm.expire_date))}
                       </td>
-                        
                     </tr>
                   ))
                 )}
