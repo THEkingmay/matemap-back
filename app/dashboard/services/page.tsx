@@ -1,5 +1,11 @@
+import { ServiceDashboard } from "../components/services/service-dashboard";
+
 function ServiceHomePage() {
-  return <div>ServiceHomePage</div>;
+  return (
+    <div>
+      <ServiceDashboard />
+    </div>
+  );
 }
 
 export default ServiceHomePage;
