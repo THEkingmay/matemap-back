@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
             { 
                 message: isMatch ? "It's a Match! ใจตรงกัน!" : "บันทึกการปัดสำเร็จ",
                 is_match: isMatch,
-                // ใช้ Optional Chaining หรือตัวแปรที่เตรียมไว้ ป้องกัน App Crash
+                target_id : target_id ,
                 target_name: targetName 
           },
           { status: 200 } // ระบุ status code ให้ชัดเจน

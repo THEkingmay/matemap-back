@@ -25,7 +25,7 @@ function DormEditFormAddress({ formData, errors, handleChange }: Props) {
           <input
             type="text"
             name="dorm_number"
-            value={formData?.dorm_number}
+            value={formData?.dorm_number || ''}
             onChange={handleChange}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
               errors.dorm_number ? "border-red-500" : "border-gray-300"
@@ -58,7 +58,7 @@ function DormEditFormAddress({ formData, errors, handleChange }: Props) {
           <input
             type="text"
             name="sub_district"
-            value={formData?.sub_district}
+            value={formData?.sub_district || ''}
             onChange={handleChange}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
               errors.sub_district ? "border-red-500" : "border-gray-300"
@@ -80,7 +80,7 @@ function DormEditFormAddress({ formData, errors, handleChange }: Props) {
           <input
             type="text"
             name="district"
-            value={formData?.district}
+            value={formData?.district || ''}
             onChange={handleChange}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
               errors.district ? "border-red-500" : "border-gray-300"
@@ -104,7 +104,7 @@ function DormEditFormAddress({ formData, errors, handleChange }: Props) {
           <input
             type="text"
             name="city"
-            value={formData?.city}
+            value={formData?.city || ''}
             onChange={handleChange}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
               errors.city ? "border-red-500" : "border-gray-300"
@@ -126,7 +126,7 @@ function DormEditFormAddress({ formData, errors, handleChange }: Props) {
           <input
             type="text"
             name="province"
-            value={formData?.province}
+            value={formData?.province || ''}
             onChange={handleChange}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
               errors.province ? "border-red-500" : "border-gray-300"
@@ -148,7 +148,7 @@ function DormEditFormAddress({ formData, errors, handleChange }: Props) {
           <input
             type="text"
             name="postal_code"
-            value={formData?.postal_code}
+            value={formData?.postal_code || ''}
             onChange={handleChange}
             maxLength={5}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${

@@ -2,7 +2,11 @@
 
 import { DollarSign, Building2, FileCheck, HeartHandshake } from "lucide-react";
 
+
 function DashboardStats() {
+
+
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -10,7 +14,7 @@ function DashboardStats() {
           <div className="flex items-center justify-between">
             <div> 
               <p className="text-sm text-gray-600">รายได้รวม/เดือน</p>
-              <p className="text-2xl font-bold text-gray-900 ">฿25,500</p>
+              {/* <p className="text-2xl font-bold text-gray-900 ">฿25,500</p> */}
             </div>
             <DollarSign className="text-green-600" size={32} />
           </div>
@@ -19,7 +23,7 @@ function DashboardStats() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">หอพักทั้งหมด</p>
-              <p className="text-2xl font-bold text-gray-900">12</p>
+              {/* <p className="text-2xl font-bold text-gray-900">12</p> */}
             </div>
             <Building2 className="text-blue-600" size={32} />
           </div>
@@ -28,7 +32,7 @@ function DashboardStats() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">โพสต์รออนุมัติ</p>
-              <p className="text-2xl font-bold text-gray-900">3</p>
+              {/* <p className="text-2xl font-bold text-gray-900">3</p> */}
             </div>
             <FileCheck className="text-orange-600" size={32} />
           </div>
@@ -37,7 +41,7 @@ function DashboardStats() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">ประวัติบริการรับจ้าง</p>
-              <p className="text-2xl font-bold text-gray-900">5</p>
+              {/* <p className="text-2xl font-bold text-gray-900">5</p> */}
             </div>
             <HeartHandshake className="text-orange-600" size={32} />
           </div>
