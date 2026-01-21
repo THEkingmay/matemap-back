@@ -1,29 +1,53 @@
+"use client";
+
+import {
+  getDormByID,
+  // updateDormByID,
+} from "@/app/dashboard/lib/db/dorms/queries";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { FormEditData } from "@/app/dashboard/lib/types";
 import DormEdit from "@/app/dashboard/components/dorms/dorm-edit";
 
-const mockupDorm = {
-  id: "1",
-  name: "หอพักสุขสบาย",
-  address: {
-    number: "123/45",
-    street: "ถนนพระรามที่ 1",
-    district: "แขวงปทุมวัน",
-    city: "เขตปทุมวัน",
-    province: "กรุงเทพมหานคร",
-    postalCode: "10330",
-  },
-  detail: "ใกล้มหาวิทยาลัย เดินทางสะดวก อาคาร 5 ชั้น มีลิฟต์และที่จอดรถ",
-  createdAt: new Date("2025-01-01"),
-  landlord: {
-    name: "นายสมชาย ใจดี",
-  },
-  phoneNumber: "081-234-5678",
-  idLine: "@suksanbai",
-};
+function DormEditPage() {
+  const { id } = useParams<{ id: string }>();
 
-async function DormEditPage({ params }: { params: Promise<{ id: string }> }) {
-  const id = Number(await params);
+  const [dormData, setDormData] = useState<FormEditData>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  return <DormEdit dorm={mockupDorm}></DormEdit>;
+  useEffect(() => {
+    if (!id) return;
+
+    getDormByID(id)
+      .then((data: FormEditData) => {
+        setDormData(data);
+      })
+      .catch(err => {
+        console.error(err);
+        setError("ไม่สามารถโหลดข้อมูลหอพักได้");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) {
+    return <div>กำลังโหลดข้อมูล...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
+  return (
+    <main className="py-10">
+      <div className="max-w-4xl mx-auto">
+        {dormData && <DormEdit dorm={dormData} />}
+      </div>
+    </main>
+  );
 }
 
 export default DormEditPage;

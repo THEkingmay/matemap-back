@@ -1,62 +1,42 @@
 export interface DormListProps {
     id: string;
+    created_at: string; 
+    owner_name: string;
+    owner_tel: string;
     name: string;
-    address: {
-      number: string;
-      street: string;
-      district: string;
-      city: string;
-      province: string;
-      postalCode: string;
-    };
+    dorm_number: string;
+    district: string;
+    sub_district: string;
+    city: string;
+    province: string;
+    postal_code: string;
     detail: string;
-    createdAt: Date;
-    landlord: {
-      name: string;
-    };
-    phoneNumber: string;
-    idLine?: string;
-    socialMediaLink?: string;
-    role : 'member' | 'user' | 'service' // Needed?
+    id_line?: string;
+    social_media_link?: string;
 };
 
 export interface DormCardProps {
     id: string;
     name: string;
-    address: {
-      number: string;
-      street: string;
-      district: string;
-      city: string;
-      province: string;
-      postalCode: string;
-    };
-    detail: string;
-    createdAt: Date;
-    landlord: {
-      name: string;
-    };
+    created_at: string;
+    owner_name: string;
   };
 
 export interface DormContentProps {
     id: string;
+    created_at: string; 
+    owner_name: string;
+    owner_tel: string;
     name: string;
-    address: {
-      number: string;
-      street: string;
-      district: string;
-      city: string;
-      province: string;
-      postalCode: string;
-    };
+    dorm_number: string;
+    district: string;
+    sub_district: string;
+    city: string;
+    province: string;
+    postal_code: string;
     detail: string;
-    createdAt: Date;
-    landlord: {
-      name: string;
-    };
-    phoneNumber: string;
-    idLine?: string; // fix type add '?'
-    socialMediaLink?: string;
+    id_line?: string;
+    social_media_link?: string;
 };
 
 export interface DormTabProps {
@@ -123,3 +103,20 @@ export type StatusConfigItem = {
 };
 
 export type ServiceStatus = "รอยืนยัน" | "ยืนยันแล้ว" | "เสร็จสิ้น" | "ยกเลิก";
+
+export interface FormEditData {
+    id: string;
+    created_at: string; 
+    owner_name: string;
+    owner_tel: string;
+    name: string;
+    dorm_number: string;
+    district: string;
+    sub_district: string;
+    city: string;
+    province: string;
+    postal_code: string;
+    detail: string;
+    id_line?: string;
+    social_media_link?: string;
+}
