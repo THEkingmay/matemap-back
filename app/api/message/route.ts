@@ -46,7 +46,7 @@ export async function GET(req : NextRequest) {
     }
 }
 
-export async function PUT(req : NextRequest){
+export async function POST (req : NextRequest){
     try {
         const userid = req.nextUrl.searchParams.get('userId')
         const room_id = req.nextUrl.searchParams.get("roomId")
@@ -66,9 +66,9 @@ export async function PUT(req : NextRequest){
         // Select specifically matches MessageDetail interface
         const {error } = await supabase
             .from('chat_message')
-            .insert({message : message , uid : userid })
-            .eq('room_chat_id', room_id)
-            // 3. Error Handling
+            .insert({message : message , uid : userid , room_chat_id : room_id})
+    
+        // 3. Error Handling
         if (error) {
             console.error("Supabase Error:", error);
             return NextResponse.json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูล" }, { status: 500 });
