@@ -13,12 +13,17 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Trash } from "lucide-react";
+import { deleteDormByID } from "../../lib/db/dorms/queries";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 type DormDeleteProps = {
   dormId: string;
 };
 
 function DormDeleteAlert({ dormId }: DormDeleteProps) {
+  const router = useRouter();
+
   return (
     <div className="ml-3">
       <AlertDialog>
@@ -41,9 +46,15 @@ function DormDeleteAlert({ dormId }: DormDeleteProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                console.log("delete dorm", dormId);
-                // TODO: call server action
+              onClick={async () => {
+                try {
+                  await deleteDormByID(dormId);
+                  toast.success("ลบหอพักสำเร็จ");
+                  router.replace("/dashboard/dorms");
+                } catch (err) {
+                  console.error(err);
+                  toast.error("ลบหอพักไม่สำเร็จ");
+                }
               }}
             >
               ยืนยันการลบ
