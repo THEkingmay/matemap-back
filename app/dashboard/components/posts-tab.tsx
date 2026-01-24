@@ -1,45 +1,27 @@
 import PendingPostTab from "./pendding-post-tab";
-import { useState } from "react";
-import ApprovedPostTab from "./approved-post-tab";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
+import { getPostsByStatus } from "../posts/action";
+//   image_public_id text,
 
-const pendingPosts = [
-  {
-    id: "1",
-    post_by: "สมชาย ใจดี",
-    title: "หอพักอินดี้",
-    price: 8500,
-    createdAt: "2025-01-18",
-    status: "รอการอนุมัติ",
-  },
-  {
-    id: "2",
-    post_by: "วิภา สุขใจ",
-    title: "ยูนิค เพลส",
-    price: 6000,
-    createdAt: "2025-01-17",
-    status: "รอการอนุมัติ",
-  },
-];
-
-const approvedPosts = [
-  {
-    id: "3",
-    post_by: "ธนา รุ่งเรือง",
-    title: "เดอะ นิช",
-    price: 7500,
-    createdAt: "2025-01-17",
-    status: "รออนุมัติ",
-  },
-  {
-    id: "4",
-    post_by: "ธนา รุ่งเรือง",
-    title: "เดอะ นิช",
-    price: 8000,
-    createdAt: "2025-01-17",
-    status: "อนุมัติแล้ว",
-  },
-];
+export interface Post {
+  id: string;
+  created_at: string;
+  user_id: string;
+  title: string;
+  price: number;
+  dorm_number?: string;
+  postal_code?: string;
+  province?: string;
+  city?: string;
+  district?: string;
+  sub_district?: string;
+  street?: string;
+  status: "pending" | "approved" | "rejected";
+  image_url?: string;
+  image_public_id?: string;
+}
 
 type Props = {
   activeTab: string;
@@ -47,6 +29,26 @@ type Props = {
 
 function PostsTab({ activeTab }: Props) {
   const [activeSubTab, setActiveSubTab] = useState("pending");
+  const [pendingPosts, setPendingPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const fetchPendingPosts = async () => {
+    try {
+      setLoading(true);
+      const data = await getPostsByStatus("pending");
+      setPendingPosts(data);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาดในการดึงโพสต์ที่รอการอนุมัติ");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "approval") {
+      fetchPendingPosts();
+    }
+  }, [activeTab]);
 
   return (
     <div>
@@ -60,24 +62,21 @@ function PostsTab({ activeTab }: Props) {
               >
                 รอการอนุมัติ ({pendingPosts.length})
               </Button>
-              <Button
-                onClick={() => setActiveSubTab("approved")}
-                className={`px-6 py-3 font-medium hover:cursor-pointer ${activeSubTab === "approved" ? "px-4 py-2 bg-blue-600 text-white rounded-lg text-sm" : "px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"}`}
-              >
-                อนุมัติแล้ว ({approvedPosts.length})
-              </Button>
             </div>
           </div>
 
-          <PendingPostTab
-            pendingPosts={pendingPosts}
-            activeSubTab={activeSubTab}
-          />
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <PendingPostTab
+              pendingPosts={pendingPosts}
+              activeSubTab={activeSubTab}
+              setPendingPosts={setPendingPosts}
+            />
+          )}
 
-          <ApprovedPostTab
-            approvedPosts={approvedPosts}
-            activeSubTab={activeSubTab}
-          />
         </div>
       )}
     </div>

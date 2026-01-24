@@ -15,10 +15,23 @@ export async function GET(
     .eq("id", id)
     .single();
 
+    //เอาอีเมลเจ้าของหอพักมาด้วย
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("email")
+      .eq("id", data.user_id)
+      .single();
+
+    if (userError) throw userError;
+
+    const dormWithOwnerEmail = {
+      data : data,
+      owner_email: userData?.email || null,
+    };
 
     if (error) throw error;
 
-    return NextResponse.json(data);
+    return NextResponse.json(dormWithOwnerEmail, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch dorm" },
@@ -66,6 +79,8 @@ export async function PATCH(
       .select()
       .single();
 
+    
+
     if (error) throw error;
 
      return NextResponse.json(data, { status: 200 });
@@ -85,10 +100,19 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    const { error } = await supabase
+    // ดึง user_id จาก dorm_detail ก่อนลบ
+    const { data: dormData, error: dormError } = await supabase
       .from('dorm_detail')
+      .select('user_id')
+      .eq('id', id)
+      .single();
+
+    if (dormError || !dormData) throw dormError;
+    const userId = dormData.user_id;
+    const { error } = await supabase
+      .from('users')
       .delete()
-      .eq('id', id);
+      .eq('id', userId);
 
     if (error) throw error;
 

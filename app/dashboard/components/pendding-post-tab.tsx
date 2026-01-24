@@ -1,15 +1,16 @@
 import { Eye, Check, X } from "lucide-react";
-import { PendingPost } from "../lib/types";
 import Link from "next/link";
 import PostDisapproveAlert from "./post-disaprrove-alert";
 import PostApproveAlert from "./post-approve-alert";
+import type { Post } from "./posts-tab";
 
 type PendingPostProps = {
-  pendingPosts: PendingPost[];
+  pendingPosts: Post[];
   activeSubTab: string;
+  setPendingPosts: (posts: Post[]) => void;
 };
 
-function PendingPostTab({ pendingPosts, activeSubTab }: PendingPostProps) {
+function PendingPostTab({ pendingPosts, activeSubTab, setPendingPosts }: PendingPostProps) {
   return (
     <div>
       {activeSubTab === "pending" && (
@@ -26,12 +27,12 @@ function PendingPostTab({ pendingPosts, activeSubTab }: PendingPostProps) {
                       ขายสัญญา
                     </span>
                     <span className="text-sm text-gray-500">
-                      {post.createdAt}
+                      {post.created_at}
                     </span>
                   </div>
                   <h3 className="font-medium text-lg mb-1">{post.title}</h3>
                   <p className="text-gray-600 text-sm mb-2">
-                    โพสต์โดย: {post.post_by}
+                    โพสต์โดย: {post.user_id}
                   </p>
                   <p className="text-xl font-bold text-blue-600">
                     ฿{post.price.toLocaleString("th-TH")}/เดือน
@@ -43,8 +44,8 @@ function PendingPostTab({ pendingPosts, activeSubTab }: PendingPostProps) {
                       <Eye size={20} />
                     </Link>
                   </button>
-                  <PostApproveAlert postID={post.id} />
-                  <PostDisapproveAlert postID={post.id} />
+                  <PostApproveAlert postID={post.id} onSuccess={() => setPendingPosts(pendingPosts.filter(p => p.id !== post.id))} />
+                  <PostDisapproveAlert postID={post.id} onSuccess={() => setPendingPosts(pendingPosts.filter(p => p.id !== post.id))} />
                 </div>
               </div>
             </div>

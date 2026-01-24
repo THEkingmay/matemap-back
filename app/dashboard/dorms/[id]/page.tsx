@@ -10,23 +10,28 @@ function DormDetailPage() {
   const { id } = useParams<{ id: string }>();
 
   const [dorm, setDorm] = useState<DormContentProps | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
 
-    getDormByID(id)
-      .then((data: DormContentProps) => {
-        setDorm(data);
-      })
-      .catch(err => {
+    const fetchDorm = async () => {
+      try {
+        const data = await getDormByID(id);
+        setDorm(data.data);
+        setEmail(data.owner_email || null);
+      } catch (err) {
         console.error(err);
         setError("ไม่สามารถโหลดข้อมูลหอพักได้");
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    
+    };
+
+    fetchDorm();
   }, [id]);
 
   if (loading) {
@@ -46,7 +51,7 @@ function DormDetailPage() {
   return (
     <main className="py-10">
       <div className="max-w-4xl mx-auto">
-        <DormDetail dorm={dorm} />
+        <DormDetail dorm={dorm} email={email || ''} />
       </div>
     </main>
   );

@@ -10,7 +10,8 @@ export async function getDorms() {
 export async function getDormByID(dormId: string) {
   const res = await fetch(`/api/dorms/${dormId}`);
   if (!res.ok) throw new Error('Failed to fetch dorm');
-  return res.json();
+  const data = await res.json();
+  return data;
 }
 
 // Update dorm

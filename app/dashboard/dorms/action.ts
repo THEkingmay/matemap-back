@@ -67,12 +67,12 @@ export async function getDormDetailDashboard(){
 
            
             return {
-                dorm_id : memberDorm.id ,
-                name : memberDorm.name , 
-                user_id : memberDorm.user_id ,
-                isActive : isActive ,
-                expire_date : memberSub.expired_date ,
-                owner_name : memberDorm.owner_name
+                dorm_id: memberDorm?.id || '',
+                name: memberDorm?.name || '',
+                user_id: memberDorm?.user_id || '',
+                isActive: isActive,
+                expire_date: memberSub?.expired_date || null,
+                owner_name: memberDorm?.owner_name || ''
             }
         })
 

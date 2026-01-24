@@ -63,22 +63,6 @@ export type ContractPost = {
   status: "อนุมัติแล้ว" | "รอการอนุมัติ";
 };
 
-export interface PendingPost {
-    id: string;
-    post_by: string;
-    title: string;
-    price: number;
-    createdAt: string;
-    status: string;
-}
-export interface ApprovedPost {
-    id: string;
-    post_by: string;
-    title: string;
-    price: number;
-    createdAt: string;
-    status: string;
-}
 
 export interface AllServiceHistory {
     id: string;

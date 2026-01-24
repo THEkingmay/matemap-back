@@ -12,11 +12,32 @@ import {
 } from "@/components/ui/alert-dialog";
 import { X } from "lucide-react";
 
+import { updateStatusPost } from "../posts/action";
+import { toast } from "react-toastify";
+import { on } from "events";
+
 type PostDisapproveProps = {
   postID: string;
+  onSuccess?: () => void; // ลบโพสต์ที่ไม่อนุมัติแล้วออก
 };
 
-function PostDisapproveAlert({ postID }: PostDisapproveProps) {
+function PostDisapproveAlert({ postID, onSuccess }: PostDisapproveProps) {
+
+  const handleRejected = async () => {
+    try{
+      toast.promise(
+        updateStatusPost(postID, "rejected"),
+        {
+          pending: "กำลังไม่อนุมัติโพสต์...",
+          success: "ไม่อนุมัติโพสต์เรียบร้อยแล้ว!",
+          error: "เกิดข้อผิดพลาดในการไม่อนุมัติโพสต์",
+        }
+      );
+      onSuccess && onSuccess();
+    } catch (error) {
+      console.error("Error rejecting post:", error);
+    }
+  };
   return (
     <div className="ml-3">
       <AlertDialog>
@@ -40,10 +61,8 @@ function PostDisapproveAlert({ postID }: PostDisapproveProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                console.log("disapprove post", postID);
-                // TODO: call server action
-              }}
+              // ปิด dialog และเรียกใช้ฟังก์ชันไม่อนุมัติ
+              onClick={handleRejected}
             >
               ไม่อนุมัติ
             </AlertDialogAction>
