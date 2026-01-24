@@ -5,6 +5,21 @@ import { genarateToken , verifyPassword } from "@/utils/token"
 
 export async function login( email : string, password : string) {
     try {
+
+        // Dev bypass
+        if (process.env.NODE_ENV === 'development') {
+            const token = await genarateToken('dev-admin', 'admin');
+            
+            (await cookies()).set('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'development',
+                path: '/',
+                maxAge: 60 * 60 * 24,
+                sameSite: 'lax'
+            })
+
+            return { success: true, dev: true }
+        }
     
         const { data: user, error } = await supabase
             .from('users')

@@ -10,6 +10,7 @@ import {
   Building2,
   FileCheck,
   HeartHandshake,
+  User,
 } from "lucide-react"; // 2. เพิ่ม icon Menu และ X
 import { logout } from "../action";
 import { toast } from "react-toastify";
@@ -20,6 +21,11 @@ const menuItems = [
     name: "หน้าแรก",
     href: "/dashboard",
     icon: <Home className="w-4 h-4" />,
+  },
+  {
+    name: "บัญชีทั้งหมด",
+    href: "/dashboard/users",
+    icon: <User className="w-4 h-4" />,
   },
   {
     name: "บัญชีหอพัก",

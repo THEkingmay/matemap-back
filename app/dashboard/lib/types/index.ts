@@ -124,3 +124,42 @@ export interface FormEditData {
 export interface FormErrors {
   [key: string]: string;
 }
+
+export type UserType = StudentUserDisplay | WorkerUserDisplay | DormUserDisplay;
+
+export interface StudentUserDisplay {
+  type: "นิสิต";
+  id: string;
+  name: string;
+  birth_year?: number;
+  faculty?: string;
+  major?: string;
+  image_url?: string;
+}
+
+
+
+export interface WorkerUserDisplay {
+  type: "คนรับจ้าง";
+  id: string;
+  tel: string;
+  name: string;
+  image_url: string | null;
+  created_at: Date;
+  services: {
+    id: string;
+    name: string;
+  }[];
+}
+
+export interface DormUserDisplay {
+  type: "หอพัก";
+  id: string;
+  name: string;
+  owner_name: string;
+  owner_tel: string;
+  dorm_number: string;
+  district: string;
+  city: string;
+  province: string;
+}
