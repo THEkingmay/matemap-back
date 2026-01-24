@@ -1,0 +1,101 @@
+import supabase from "@/configs/supabase";
+import { NextRequest, NextResponse } from "next/server";
+import { validateRequest } from "@/utils/token";
+
+// Get all contract posts
+export async function GET() {
+  const { data, error } = await supabase
+    .from("contract_posts")
+    .select(`
+      id,
+      title,
+      price,
+      image_url,
+      province,
+      city,
+      created_at
+    `)
+    .eq("status", "posted")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
+// Create contract post
+export async function POST(req: NextRequest) {
+  try {
+    const userId = req.nextUrl.searchParams.get("userId");
+    
+     if (!userId) {
+      return NextResponse.json(
+        { error: "Missing userId" },
+        { status: 400 }
+      );
+    }
+    
+    // ดึง user จาก token
+    const isAuthorized = await validateRequest(req, userId);
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const {
+      title,
+      price,
+      dorm_number,
+      postal_code,
+      province,
+      city,
+      district,
+      sub_district,
+      street,
+    } = body;
+
+    if (!title || !price) {
+      return NextResponse.json(
+        { error: "title and price are required" },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("contract_posts")
+      .insert({
+        user_id: userId,
+        title,
+        price,
+        dorm_number,
+        postal_code,
+        province,
+        city,
+        district,
+        sub_district,
+        street,
+        status: "posted",
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({
+      message: "Create contract post success",
+      post: data,
+    });
+
+  } catch (err) {
+    console.error((err as Error).message);
+    return NextResponse.json(
+      { error: "Create post failed" },
+      { status: 500 }
+    );
+  }
+}
