@@ -1,4 +1,4 @@
-import { Building2, FileCheck, HeartHandshake } from "lucide-react";
+import { Building2, FileCheck, HeartHandshake, User } from "lucide-react";
 import { useState } from "react";
 import DormTab from "./dorms-tab";
 import PostTab from "./posts-tab";
