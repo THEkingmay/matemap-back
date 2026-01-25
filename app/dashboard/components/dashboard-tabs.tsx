@@ -20,6 +20,15 @@ function DashboardTabs() {
           </div>
         </button>
         <button
+          onClick={() => setActiveTab("services")}
+          className={`px-6 py-3 font-medium ${activeTab === "services" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-600"}`}
+        >
+          <div className="flex items-center gap-2">
+            <HeartHandshake size={20} />
+            บัญชีผู้ให้บริการ
+          </div>
+        </button>
+        <button
           onClick={() => setActiveTab("approval")}
           className={`px-6 py-3 font-medium ${activeTab === "approval" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-600"}`}
         >
@@ -28,15 +37,7 @@ function DashboardTabs() {
             อนุมัติโพสต์
           </div>
         </button>
-        <button
-          onClick={() => setActiveTab("services")}
-          className={`px-6 py-3 font-medium ${activeTab === "services" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-600"}`}
-        >
-          <div className="flex items-center gap-2">
-            <HeartHandshake size={20} />
-            บริการรับจ้าง
-          </div>
-        </button>
+        
       </div>
 
       <div className="p-6">

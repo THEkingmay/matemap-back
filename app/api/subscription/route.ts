@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import supabase from "@/configs/supabase";
+import { validateRequest } from "@/utils/token";
 
 export async function GET(req: NextRequest) {
     try {
@@ -11,6 +12,12 @@ export async function GET(req: NextRequest) {
                 { message: "Missing userId" }, 
                 { status: 400 }
             );
+        }
+
+        
+        const isAuthorization = await validateRequest(req , userId)
+        if(!isAuthorization) {
+            return NextResponse.json({message : "คุณไม่มีสิทธิ"} , {status : 409})
         }
 
         const { data: latestSub, error } = await supabase

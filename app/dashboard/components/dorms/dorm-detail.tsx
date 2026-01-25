@@ -24,7 +24,38 @@ import { formatDate } from "../../lib/util";
 import { DormContentProps } from "../../lib/types";
 import DormDeleteAlert from "./dorm-delete-alert";
 
+import SubscriptionComponent from "../subscription/subscription";
+import { useEffect, useState } from "react";
+import { getUserIdbyDormId } from "../../dorms/action";
+import { toast } from "react-toastify";
+
 function DormDetail({ dorm, email }: { dorm: DormContentProps; email?: string }) {
+
+    const [loadingUserId, setLoading] = useState<boolean>(true)
+    const [ uid , setUID] = useState<string>('')
+    useEffect(()=>{
+        // get userId of this dorm
+        const fetchUserId = async () =>{
+            setLoading(true)
+           try{
+                const data  = await getUserIdbyDormId(dorm.id)
+
+                if(!data.success){
+                    toast.error(data.error)
+                }
+                if(data.success && data.data){
+                    setUID(data.data)
+                }
+           }catch(err){
+            toast.error((err as Error).message)
+           }finally{
+            setLoading(false)
+           }
+        }
+        fetchUserId()
+    },[])
+
+
   const addressDetails = [
     dorm.district,
     dorm.sub_district,
@@ -165,6 +196,13 @@ function DormDetail({ dorm, email }: { dorm: DormContentProps; email?: string })
                     {dorm.detail || "เจ้าของหอพักยังไม่ได้ระบุรายละเอียดเพิ่มเติม"}
                 </div>
             </div>
+
+            {(loadingUserId || !uid) && (
+                <div>
+                    กำลังดึงไอดีผู้ใช้ ...
+                </div>
+            )}
+            {!loadingUserId && uid && <SubscriptionComponent id={uid} />}
         </div>
       </CardContent>
 

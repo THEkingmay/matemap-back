@@ -21,7 +21,7 @@ export default function ImageUploader({
   const handleRemoveImage = async () => {
     try{
       toast.promise(
-        fetch(`/api/cloudinary/upload/dorm-profile?dormId=${dormId}`, {
+        fetch(`/api/cloudinary/delete/dorm-profile?dormId=${dormId}`, {
           method: "DELETE",
         }), 
         {

@@ -40,11 +40,18 @@ export async function getWorkerDetail(worker_id: string) {
                 .from('service_history')
                 .select('*')
                 .eq('provider_id', worker_id)
+                .order('created_at')
         ]);
 
         // 4. Construct Data
         // We map the weird join structure to a cleaner list if needed
-        const jobs :  = servicesResult.data?.map((item) => {item.service_id,item.services}) || [];
+        const jobs: Job[] = servicesResult.data?.map((item : any) => {
+            const s = item.services; 
+            return {
+                id: s?.id || "",
+                name: s?.name || "Unknown Service"
+            };
+        }) || [];
 
         const data: WorkerDetailType = {
             detail: workerDetail,
