@@ -1,5 +1,44 @@
 import supabase from '@/configs/supabase';
 import { NextRequest, NextResponse } from 'next/server';
+import { IsAdmin, verifyToken } from '@/utils/token';
+
+
+export async function checkOwnership(request: NextRequest, dormId: string) {
+  const isAdmin = await IsAdmin()
+  if(isAdmin) return { isAdmin }
+
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+
+  if (!token) {
+    return { error: "Unauthorized", status: 401 };
+  }
+
+  
+
+  try {
+    const user = await verifyToken(token);
+    // เช็คว่าหอพักมีอยู่จริงไหม และใครเป็นเจ้าของ
+    const { data: dormData, error } = await supabase
+      .from("dorm_detail")
+      .select('user_id')
+      .eq("id", dormId)
+      .single();
+    if (error || !dormData) {
+      return { error: "Dorm not found", status: 404 };
+    }
+
+    if (user.id !== dormData.user_id) {
+      return { error: "Forbidden: You are not the owner", status: 403 };
+    }
+
+    // ส่ง user กลับไปเผื่อต้องใช้ต่อ
+    return { user, isOwner: true };
+
+  } catch (err) {
+    return { error: "Invalid Token", status: 401 };
+  }
+}
 
 // GET /api/dorms/[id] - ดึงข้อมูลหอพัก
 export async function GET(
@@ -9,12 +48,18 @@ export async function GET(
   try {
     const { id } = await context.params;
 
+   const authCheck = await checkOwnership(request, id);
+
+   if (authCheck.error) {
+      return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
+    }
+    
     const { data, error } = await supabase
     .from("dorm_detail")
     .select('*')
     .eq("id", id)
     .single();
-
+   
     //เอาอีเมลเจ้าของหอพักมาด้วย
     const { data: userData, error: userError } = await supabase
       .from("users")
@@ -50,6 +95,13 @@ export async function PATCH(
     const { id } = await context.params;
     const body = await request.json();
     
+    
+    const authCheck = await checkOwnership(request, id);
+
+    if (authCheck.error) {
+        return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
+      }
+
     const allowedFields = [
       "name",
       "dorm_number",
@@ -100,6 +152,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
+
+    
+   const authCheck = await checkOwnership(request, id);
+
+   if (authCheck.error) {
+      return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
+    }
     // ดึง user_id จาก dorm_detail ก่อนลบ
     const { data: dormData, error: dormError } = await supabase
       .from('dorm_detail')

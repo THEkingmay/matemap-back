@@ -78,3 +78,13 @@ export async function validateRequest(req: NextRequest, targetId: string): Promi
     return false;
   }
 }
+
+
+export async function IsAdmin() {
+    const token = (await cookies()).get('token')?.value
+    if(!token) return false
+
+    const user= await verifyToken(token)
+    
+    return user.role =='admin' ? true : false
+}

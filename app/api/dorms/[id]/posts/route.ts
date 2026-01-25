@@ -1,13 +1,22 @@
 import supabase from '@/configs/supabase';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { checkOwnership } from '../route';
 
 // GET /api/dorms/[id]/posts - ดึงข้อมูลโพสต์ของแต่ละหอพัก
 export async function GET(
-  request: Request,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await context.params;
+
+    
+    const authCheck = await checkOwnership(request, id);
+
+    if (authCheck.error) {
+      return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
+    }
+
 
     const { data, error } = await supabase
       .from('dorm_posts')
