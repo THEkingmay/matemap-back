@@ -147,3 +147,16 @@ export interface DormUserDisplay {
   city: string;
   province: string;
 }
+
+export interface UserDetails {
+  id: string; 
+  name: string;
+  bio: string | null;
+  tag: string[] | null;
+  image_url: string | null;
+  faculty: string | null;
+  major: string | null;
+  birth_year: number | null; 
+  tel: string | null; 
+  image_public_id: string | null;
+}
