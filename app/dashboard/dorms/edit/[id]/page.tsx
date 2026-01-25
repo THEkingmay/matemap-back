@@ -21,8 +21,8 @@ function DormEditPage() {
     if (!id) return;
 
     getDormByID(id)
-      .then((data: FormEditData) => {
-        setDormData(data);
+      .then((data: {data : FormEditData }) => {
+        setDormData(data.data);
       })
       .catch(err => {
         console.error(err);

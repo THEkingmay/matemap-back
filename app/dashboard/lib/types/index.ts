@@ -13,6 +13,7 @@ export interface DormListProps {
     detail: string;
     id_line?: string;
     social_media_link?: string;
+    image_url?: string;
 };
 
 export interface DormCardProps {
@@ -37,6 +38,7 @@ export interface DormContentProps {
     detail: string;
     id_line?: string;
     social_media_link?: string;
+    image_url?: string;
 };
 
 export interface DormTabProps {
@@ -103,6 +105,7 @@ export interface FormEditData {
     detail: string;
     id_line?: string;
     social_media_link?: string;
+    image_url?: string;
 }
 
 export interface FormErrors {

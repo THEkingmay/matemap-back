@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import type { JwtPayload } from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { NextRequest } from 'next/server'
+import { cookies } from 'next/headers'
 
 const JWT_SECRET = process.env.JWT_SECRET!
 const BCRYPT_SALT = parseInt(process.env.BCRYPT_SALT!) || 10
@@ -48,6 +49,12 @@ export async function verifyToken(token : string){
 }
 
 export async function validateRequest(req: NextRequest, targetId: string): Promise<boolean> {
+
+  const adminToken = (await cookies()).get('token')
+    if (adminToken) { 
+        return true
+    }
+
   const authHeader = req.headers.get("authorization");
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -58,7 +65,9 @@ export async function validateRequest(req: NextRequest, targetId: string): Promi
 
   try {
     const user = await verifyToken(token);
-
+    if (user.role == 'admin') {
+        return true; 
+    }
     if (!user || user.id !== targetId) {
       return false; 
     }

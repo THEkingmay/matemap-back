@@ -35,7 +35,7 @@ function PendingPostTab({ pendingPosts, activeSubTab, setPendingPosts }: Pending
                     โพสต์โดย: {post.user_id}
                   </p>
                   <p className="text-xl font-bold text-blue-600">
-                    ฿{post.price.toLocaleString("th-TH")}/เดือน
+                    ค่าสัญญา {post.price.toLocaleString("th-TH")} บาท
                   </p>
                 </div>
                 <div className="flex gap-2">

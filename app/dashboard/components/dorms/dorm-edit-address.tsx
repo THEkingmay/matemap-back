@@ -1,171 +1,82 @@
-import { MapPin, AlertCircle } from "lucide-react";
-import { FormEditData, FormErrors } from "../../lib/types";
+import { ChangeEvent } from "react";
+import { MapPin } from "lucide-react";
+import { FormEditData } from "../../lib/types";
 
-type Props = {
+interface AddressSectionProps {
   formData: FormEditData;
-  errors: FormErrors;
-  handleChange: React.ChangeEventHandler<
-    HTMLInputElement | HTMLTextAreaElement
-  >;
-};
+  handleChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+}
 
-function DormEditFormAddress({ formData, errors, handleChange }: Props) {
+export default function AddressSection({ formData, handleChange }: AddressSectionProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 pb-2 border-b-2 border-gray-200">
-        <MapPin className="text-gray-600" size={20} />
-        <h3 className="text-lg font-semibold text-gray-900">ที่อยู่</h3>
-      </div>
+    <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <MapPin size={18} className="mr-2 text-blue-600" />
+        ที่อยู่หอพัก
+      </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
+        {/* บ้านเลขที่ */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            เลขที่ <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">บ้านเลขที่ / ซอย / ถนน</label>
           <input
             type="text"
             name="dorm_number"
-            value={formData?.dorm_number || ''}
+            value={formData.dorm_number || ""}
             onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.dorm_number ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="123"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+            placeholder="เช่น 123/45 ซ.พหลโยธิน"
           />
-          {errors.addressNumber && (
-            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle size={14} />
-              {errors.addressNumber}
-            </p>
-          )}
         </div>
 
-        <div>
-          {errors.street && (
-            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle size={14} />
-              {errors.street}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            ตำบล/แขวง <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="sub_district"
-            value={formData?.sub_district || ''}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.sub_district ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="หัวหมาก"
-          />
-          {errors.sub_district && (
-            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle size={14} />
-              {errors.sub_district}
-            </p>
-          )}
+        {/* ตำบล / อำเภอ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ตำบล / แขวง</label>
+            <input
+              type="text"
+              name="sub_district"
+              value={formData.sub_district || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">อำเภอ / เขต</label>
+            <input
+              type="text"
+              name="district"
+              value={formData.district || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            อำเภอ/เขต <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="district"
-            value={formData?.district || ''}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.district ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="บางกะปิ"
-          />
-          {errors.district && (
-            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle size={14} />
-              {errors.district}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            เมือง <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="city"
-            value={formData?.city || ''}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.city ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="กรุงเทพมหานคร"
-          />
-          {errors.city && (
-            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle size={14} />
-              {errors.city}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            จังหวัด <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="province"
-            value={formData?.province || ''}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.province ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="กรุงเทพมหานคร"
-          />
-          {errors.province && (
-            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle size={14} />
-              {errors.province}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            รหัสไปรษณีย์ <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="postal_code"
-            value={formData?.postal_code || ''}
-            onChange={handleChange}
-            maxLength={5}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.postal_code ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="10240"
-          />
-          {errors.postal_code && (
-            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle size={14} />
-              {errors.postal_code}
-            </p>
-          )}
+        {/* จังหวัด / รหัสไปรษณีย์ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">จังหวัด</label>
+            <input
+              type="text"
+              name="province"
+              value={formData.province || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">รหัสไปรษณีย์</label>
+            <input
+              type="text"
+              name="postal_code"
+              value={formData.postal_code || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+            />
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-export default DormEditFormAddress;
