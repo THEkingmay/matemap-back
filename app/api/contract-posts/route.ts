@@ -15,7 +15,7 @@ export async function GET() {
       city,
       created_at
     `)
-    .eq("status", "posted")
+    .eq("status", "approved")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
         district,
         sub_district,
         street,
-        status: "posted",
+        status: "pending",
       })
       .select()
       .single();
