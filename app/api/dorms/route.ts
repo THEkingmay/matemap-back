@@ -1,5 +1,5 @@
 import supabase from '@/configs/supabase';
-import { validateRequest } from '@/utils/token';
+import {validateRequest } from '@/utils/token';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET /api/dorms/ - ดึงข้อมูลหอพัก
@@ -13,7 +13,7 @@ export async function GET(
     if(user_id){
 
       const isAuthorized = await validateRequest(request , user_id)
-      if(!isAuthorized) return NextResponse.json({message : "You do not have authority"})
+      if(!isAuthorized) return NextResponse.json({message : "You do not have authority"} , {status : 409})
 
       const { data, error } = await supabase
       .from('dorm_detail')

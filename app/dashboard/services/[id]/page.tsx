@@ -1,10 +1,9 @@
-import { useParams } from "next/navigation";
+'use client'
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 export default function ServiceDetail({params} : {params :Promise<{id : string}>}){
 
-  const {id} = useParams()
 
   // const fetchServiceDetail = async () =>{
   //   try{
