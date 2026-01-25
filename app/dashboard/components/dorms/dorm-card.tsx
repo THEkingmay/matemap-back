@@ -19,12 +19,18 @@ function DormCard({ dorm }: { dorm: DormListProps }) {
         
         {/* Image Placeholder Section - หอพักควรมีรูปภาพ ถ้ายังไม่มีใช้ Icon แทนไปก่อน */}
           <div className="relative w-full aspect-video bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
-            <Image
-            src={dorm.image_url || "/default-dorm-image.jpg"}
-            alt={dorm.name}
-            fill
-            className="object-cover"
-          />
+           {
+            dorm.image_url ? (
+               <Image
+                src={dorm.image_url}
+                alt={dorm.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div>ไม่มีรูปภาพ</div>
+            )
+           }
         </div>
 
         <CardHeader className="pb-2">
