@@ -22,7 +22,7 @@ function DormList({ dorms }: { dorms: DormListProps[] }) {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="px-20 py-10 space-y-6">
       <div className="flex items-center justify-between px-1">
         <h2 className="text-2xl font-bold tracking-tight">รายการหอพักทั้งหมด</h2>
         <span className="text-sm text-muted-foreground">
