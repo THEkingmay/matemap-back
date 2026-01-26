@@ -79,7 +79,6 @@ export async function validateRequest(req: NextRequest, targetId: string): Promi
   }
 }
 
-
 export async function IsAdmin() {
     const token = (await cookies()).get('token')?.value
     if(!token) return false
@@ -88,3 +87,23 @@ export async function IsAdmin() {
     
     return user.role =='admin' ? true : false
 }
+
+export async function validateChatRequest(req: Request): Promise<string | null> {
+  const authHeader = req.headers.get("authorization");
+
+  if (!authHeader) return null;
+
+  const token = authHeader.replace("Bearer ", "");
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+    id: string;
+    role?: string;
+    };
+
+    return payload.id;
+  } catch {
+    return null;
+  }
+}
+
