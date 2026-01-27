@@ -73,6 +73,7 @@ export async function GET(req: NextRequest) {
 
       return {
         roomId: room.id,
+        partnerId: partner?.id,
         name: partner?.name ?? "Unknown",
         lastMessage: last?.message ?? "",
         lastMessageTime: last?.created_at ?? "",
