@@ -12,6 +12,7 @@ interface ChatRoomType {
   room_chat_type: 'match' | 'service' | 'contract';
 }
 
+// ดึงทุกห้องของผู้ใช้
 export async function GET(req: NextRequest) {
   try {
     const userId = req.nextUrl.searchParams.get('userId');
@@ -128,6 +129,73 @@ export async function GET(req: NextRequest) {
 
   } catch (err: any) {
     console.error("GET ChatRooms Error:", err);
+    return NextResponse.json({ message: err.message || "Internal Server Error" }, { status: 500 });
+  }
+}
+
+// สร้างห้องสำหรับนิสิตคุยกับคนขายสัญญา หอพัก หรือ ผู้ให้บริการ
+export async function POST(req: NextRequest) {
+  try {
+    const { userId, roomType, ownerPostId } = await req.json();
+
+    // 1. Validate Input
+    if (!userId || !ownerPostId || !roomType) {
+      return NextResponse.json({ message: "ข้อมูลไม่ครบถ้วน (Missing required fields)" }, { status: 400 });
+    }
+
+    if (userId === ownerPostId) {
+       return NextResponse.json({ message: "ไม่สามารถสร้างห้องแชทกับตัวเองได้" }, { status: 400 });
+    }
+
+    // 2. Authorization Check
+    const isAuthorization = await validateRequest(req, userId);
+    if (!isAuthorization) {
+      return NextResponse.json({ message: "คุณไม่มีสิทธิ์ (Unauthorized)" }, { status: 401 });
+    }
+
+    // 3. ตรวจสอบว่าเคยมีห้องแชทระหว่าง 2 คนนี้ ในประเภทห้องนี้ หรือยัง?
+    // Logic: (User1=Me AND User2=Target) OR (User1=Target AND User2=Me)
+    const { data: existingRoom, error: checkError } = await supabase
+      .from('room_chat')
+      .select('*')
+      .eq('room_chat_type', roomType)
+      .or(`and(user1_id.eq.${userId},user2_id.eq.${ownerPostId}),and(user1_id.eq.${ownerPostId},user2_id.eq.${userId})`)
+      .maybeSingle(); // ใช้ maybeSingle เพื่อไม่ให้ error ถ้าไม่เจอข้อมูล
+
+    if (checkError) {
+        throw checkError;
+    }
+
+    // กรณี A: เจอห้องเดิมแล้ว -> ส่งห้องเดิมกลับไปเลย
+    if (existingRoom) {
+      return NextResponse.json({ 
+        data: existingRoom, 
+        message: "Room already exists" 
+      }, { status: 200 });
+    }
+
+    // กรณี B: ยังไม่เคยมีห้อง -> สร้างห้องใหม่ (Insert)
+    const { data: newRoom, error: createError } = await supabase
+      .from('room_chat')
+      .insert({
+        user1_id: userId,
+        user2_id: ownerPostId,
+        room_chat_type: roomType
+      })
+      .select()
+      .single();
+
+    if (createError) {
+        throw createError;
+    }
+
+    return NextResponse.json({ 
+        data: newRoom, 
+        message: "Room created successfully" 
+    }, { status: 201 });
+
+  } catch (err: any) {
+    console.error("POST ChatRoom Error:", err);
     return NextResponse.json({ message: err.message || "Internal Server Error" }, { status: 500 });
   }
 }
