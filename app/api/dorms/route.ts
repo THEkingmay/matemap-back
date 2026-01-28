@@ -23,7 +23,7 @@ export async function GET(
 
       if(error) throw error
 
-      return NextResponse.json(data, {status : 200})
+      return NextResponse.json(data , {status : 200})
 
     }
 
