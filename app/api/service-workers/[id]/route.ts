@@ -38,6 +38,7 @@ export async function GET(
         name,
         tel,
         image_url,
+        car_registration,
         created_at
       ),
       service_and_worker (
@@ -72,12 +73,24 @@ export async function PUT(
   const authError = await authorize(req, id);
   if (authError) return authError;
 
-  const { name, tel, image_url } = await req.json();
+  const {
+    name,
+    tel,
+    image_url,
+    image_public_url,
+    car_registration,
+  } = await req.json();
 
   const { error } = await supabase
     .from("service_worker_detail")
-    .update({ name, tel, image_url })
-    .eq("service_worker_id", id);
+    .update({
+      name,
+      tel,
+      image_url,
+      image_public_url,
+      car_registration,
+    })
+    .eq("id", id);
 
   if (error) {
     return NextResponse.json(
@@ -104,7 +117,7 @@ export async function DELETE(
   await supabase
     .from("service_worker_detail")
     .delete()
-    .eq("service_worker_id", id);
+    .eq("id", id);
 
   const { error } = await supabase
     .from("users")
