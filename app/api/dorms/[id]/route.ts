@@ -14,10 +14,13 @@ export async function checkOwnership(request: NextRequest, dormId: string) {
     return { error: "Unauthorized", status: 401 };
   }
 
-  
 
   try {
     const user = await verifyToken(token);
+    
+    // ถ้า role = user แปลว่าหน้าแอปเป็นคนยิงมาให้ผ่านได้เลยจะได้เอาข้อมูลหอพักไปแสดง
+    if(user.role === 'user') return { isAuthorize : true }
+
     // เช็คว่าหอพักมีอยู่จริงไหม และใครเป็นเจ้าของ
     const { data: dormData, error } = await supabase
       .from("dorm_detail")
@@ -59,7 +62,8 @@ export async function GET(
     .select('*')
     .eq("id", id)
     .single();
-   
+
+    if(!data) return NextResponse.json({message : "ไม่พบหอพัก"} , {status : 404})
     //เอาอีเมลเจ้าของหอพักมาด้วย
     const { data: userData, error: userError } = await supabase
       .from("users")
@@ -78,6 +82,7 @@ export async function GET(
 
     return NextResponse.json(dormWithOwnerEmail, { status: 200 });
   } catch (error) {
+    console.log((error as Error).message)
     return NextResponse.json(
       { error: "Failed to fetch dorm" },
       { status: 500 }
