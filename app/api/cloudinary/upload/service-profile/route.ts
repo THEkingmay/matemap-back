@@ -14,60 +14,53 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
 
-    // ตรวจ token ว่าเป็นเจ้าของบัญชี
+    // 1. ตรวจสอบสิทธิ์การใช้งาน (Authorization)
     const isAuthorized = await validateRequest(req, userId);
     if (!isAuthorized) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: "No file" }, { status: 400 });
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
+    // ตรวจสอบประเภทไฟล์และขนาด
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json(
-        { error: "Only jpeg/png/webp allowed" },
-        { status: 415 }
-      );
+      return NextResponse.json({ error: "Only jpeg/png/webp allowed" }, { status: 415 });
     }
-
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: "Max file size 5MB" },
-        { status: 413 }
-      );
+      return NextResponse.json({ error: "Max file size 5MB" }, { status: 413 });
     }
 
-    // ดึงรูปเก่า (ถ้ามี)
+    // 2. ดึงข้อมูลรูปเดิมจาก Supabase (เพื่อเอา Public URL มาลบใน Cloudinary)
     const { data: oldProfile } = await supabase
       .from("service_worker_detail")
-      .select("image_public_id")
+      .select("image_public_url")
       .eq("id", userId)
       .single();
 
-    // ลบรูปเก่าใน Cloudinary
-    if (oldProfile?.image_public_id) {
-      await cloudinary.uploader.destroy(
-        oldProfile.image_public_id
-      );
+    // ลบรูปเก่าทิ้งจาก Cloudinary ถ้ามีอยู่
+    if (oldProfile?.image_public_url) {
+      try {
+        await cloudinary.uploader.destroy(oldProfile.image_public_url);
+      } catch (err) {
+        console.warn("Cloudinary delete old image failed:", err);
+      }
     }
 
-    // Upload ใหม่
+    // 3. เตรียมไฟล์สำหรับการ Upload ไปยัง Cloudinary
     const buffer = Buffer.from(await file.arrayBuffer());
 
     const uploadResult = await new Promise<any>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
-          folder: `matemap/users/${userId}/profile`,
+          folder: `matemap/service-workers/${userId}/profile`,
           resource_type: "image",
           transformation: [
-            { width: 400, height: 400, crop: "fill" },
+            { width: 400, height: 400, crop: "fill", gravity: "face" },
           ],
         },
         (err, result) => {
@@ -77,27 +70,37 @@ export async function POST(req: NextRequest) {
       ).end(buffer);
     });
 
-    // update Supabase
-    await supabase
+    // 4. บันทึก URL และ Public ID ลงใน Supabase
+    const { error: updateError } = await supabase
       .from("service_worker_detail")
       .update({
         image_url: uploadResult.secure_url,
-        image_public_id: uploadResult.public_id,
+        image_public_url: uploadResult.public_id,
       })
       .eq("id", userId);
 
+    // หากบันทึกลง Database พลาด ให้แจ้งเตือนทันที
+    if (updateError) {
+      console.error("Supabase Update Error:", updateError.message);
+      return NextResponse.json(
+        { error: "Image uploaded but DB update failed", details: updateError.message },
+        { status: 500 }
+      );
+    }
+
+    // 5. ส่งผลลัพธ์กลับไปยัง Client
     return NextResponse.json({
       message: "Upload success", 
       uploaded_by: userId, 
       url: uploadResult.secure_url, 
-      public_id: uploadResult.public_id, 
+      public_url: uploadResult.public_id, 
       size: file.size,
     });
 
   } catch (err) {
-    console.error((err as  Error).message);
+    console.error("Server Error:", (err as Error).message);
     return NextResponse.json(
-      { error: "Upload failed" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
