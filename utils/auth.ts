@@ -17,6 +17,9 @@ export async function checkOwnership(request: NextRequest, dormId: string) {
 
   try {
     const user = await verifyToken(token);
+
+    // by pass for user
+    if(user.role == 'user')return {isUser : true}
     // เช็คว่าหอพักมีอยู่จริงไหม และใครเป็นเจ้าของ
     const { data: dormData, error } = await supabase
       .from("dorm_detail")
