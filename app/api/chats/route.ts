@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import supabase from "@/configs/supabase";
-import { validateChatRequest } from "@/utils/token";
+import { getUserIdFromRequest
+ } from "@/utils/token";
 
 interface ChatRoom {
   roomId: string;
@@ -11,7 +12,8 @@ interface ChatRoom {
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = await validateChatRequest(req);
+    const userId = await getUserIdFromRequest
+(req);
 
     if (!userId) {
       return NextResponse.json(

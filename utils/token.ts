@@ -88,7 +88,8 @@ export async function IsAdmin() {
     return user.role =='admin' ? true : false
 }
 
-export async function validateChatRequest(req: Request): Promise<string | null> {
+export async function getUserIdFromRequest
+(req: Request): Promise<string | null> {
   const authHeader = req.headers.get("authorization");
 
   if (!authHeader) return null;
