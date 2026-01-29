@@ -1,11 +1,23 @@
 import supabase from "@/configs/supabase";
 import { NextResponse, NextRequest } from "next/server";
-import { validateRequest } from "@/utils/token";
+import { validateRequest, verifyToken } from "@/utils/token";
 
 /* =========================
    Helper: auth guard
 ========================= */
 async function authorize(req: NextRequest, userId: string) {
+
+  // bypass staudent
+  const authHeader = req.headers.get("authorization");
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return false;
+  }
+
+  const token = authHeader.split(" ")[1];
+  const user = await verifyToken(token)
+  if(user.role =='user') return null
+
   const isAllowed = await validateRequest(req, userId);
 
   if (!isAllowed) {
