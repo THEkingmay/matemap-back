@@ -101,7 +101,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     }
 }
 
-
+// เพิ่มการจอง
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
         const data: ServiceBooking = await req.json()
@@ -154,3 +154,97 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     }
 }
 
+
+// แก้ไขสถานะ หรือข้อมูลการจอง
+export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await ctx.params // id ของ user (จาก URL)
+        const { history_id, type} = await req.json() // รับค่าที่ต้องการแก้
+
+        // 1. ตรวจสอบสิทธิ์เบื้องต้น
+        if (!id) return NextResponse.json({ message: "No user id" }, { status: 400 })
+        const isAuth = await validateRequest(req, id)
+        if (!isAuth) return NextResponse.json({ message: 'คุณไม่มีสิทธิ์แก้ไขข้อมูลนี้' }, { status: 409 })
+
+        // 2. ตรวจสอบว่าประวัติการจองนี้เป็นของผู้ใช้คนนี้จริงหรือไม่ และสถานะปัจจุบันคืออะไร
+        const { data: historyData, error: fetchError } = await supabase
+            .from("service_history")
+            .select("customer_id, status")
+            .eq("id", history_id)
+            .single()
+
+        if (fetchError || !historyData) {
+            return NextResponse.json({ message: "Booking not found" }, { status: 404 })
+        }
+
+        if (historyData.customer_id !== id) {
+            return NextResponse.json({ message: "คุณไม่ใช่เจ้าของการจองนี้" }, { status: 403 })
+        }
+
+        // 3. Logic การป้องกัน: ห้ามแก้ไขรายการที่เสร็จสิ้นหรือถูกปฏิเสธไปแล้ว (ยกเว้นกรณีเฉพาะ)
+        if (historyData.status === 'done' || historyData.status === 'rejected') {
+             return NextResponse.json({ message: "ไม่สามารถแก้ไขรายการที่เสร็จสิ้นหรือถูกยกเลิกไปแล้วได้" }, { status: 400 })
+        }
+
+        // 4. ทำการอัปเดต
+        const { data, error } = await supabase
+            .from("service_history")
+            .update({status : type})
+            .eq("id", history_id)
+            .select()
+
+        if (error) throw error
+
+        return NextResponse.json({ message: "Update successful", data }, { status: 200 })
+
+    } catch (err) {
+        console.error(err)
+        return NextResponse.json({ message: (err as Error).message }, { status: 500 })
+    }
+}
+
+// ลบประวัติการจอง (ลบได้เฉพาะสถานะ pending , accepted )
+export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await ctx.params // id ของ user
+        const { history_id } = await req.json() // รับ history_id จาก body (หรือจะใช้ searchParams ก็ได้ แต่ body ปลอดภัยกว่าในบางมุม)
+
+        // 1. ตรวจสอบสิทธิ์
+        const isAuth = await validateRequest(req, id)
+        if (!isAuth) return NextResponse.json({ message: 'คุณไม่มีสิทธิ์ลบข้อมูลนี้' }, { status: 409 })
+
+        // 2. ตรวจสอบสถานะก่อนลบ (สำคัญมาก เพื่อความปลอดภัยของข้อมูล)
+        const { data: historyData, error: fetchError } = await supabase
+            .from("service_history")
+            .select("customer_id, status")
+            .eq("id", history_id)
+            .single()
+
+        if (fetchError || !historyData) return NextResponse.json({ message: "Booking not found" }, { status: 404 })
+
+        // ตรวจสอบความเป็นเจ้าของ
+        if (historyData.customer_id !== id) {
+            return NextResponse.json({ message: "คุณไม่ใช่เจ้าของการจองนี้" }, { status: 403 })
+        }
+
+        // กฎ: ลบได้เฉพาะรายการที่ยังไม่ดำเนินการ (Pending) หรือถูกปฏิเสธ (Rejected) 
+        // ถ้าเป็น 'accepted' หรือ 'done' ไม่ควรให้ลบ เพราะอาจกระทบกับฝั่ง Provider หรือประวัติงาน
+        if (historyData.status === 'accepted' || historyData.status === 'done') {
+            return NextResponse.json({ message: "ไม่สามารถลบรายการที่รับงานแล้วหรือเสร็จสิ้นแล้วได้" }, { status: 400 })
+        }
+
+        // 3. ทำการลบ
+        const { error: deleteError } = await supabase
+            .from("service_history")
+            .delete()
+            .eq("id", history_id)
+
+        if (deleteError) throw deleteError
+
+        return NextResponse.json({ message: "Deleted successful" }, { status: 200 })
+
+    } catch (err) {
+        console.error(err)
+        return NextResponse.json({ message: (err as Error).message }, { status: 500 })
+    }
+}
