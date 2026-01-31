@@ -53,10 +53,10 @@ export async function PATCH(
 
     const body = await request.json();
     const allowedFields = [
-      "roomNumber",
-      "roomType",
-      "rentPrice",
-      "readyDate",
+      "room_number",
+      "room_type",
+      "rent_price",
+      "ready_date",
       "detail",
       "facilities",
     ];
@@ -80,6 +80,7 @@ export async function PATCH(
 
      return NextResponse.json(data, { status: 200 });
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { error: 'Failed to update dorm post' },
       { status: 500 }
