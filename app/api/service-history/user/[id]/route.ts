@@ -186,12 +186,13 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
              return NextResponse.json({ message: "ไม่สามารถแก้ไขรายการที่เสร็จสิ้นหรือถูกยกเลิกไปแล้วได้" }, { status: 400 })
         }
 
-        // 4. ทำการอัปเดต
+        // 4. ทำการอัปเดตเปลี่ยนจาก pending -> accepted หรือเปลี่ยนจาก accepted -> done 
         const { data, error } = await supabase
             .from("service_history")
             .update({status : type})
             .eq("id", history_id)
             .select()
+
 
         if (error) throw error
 
@@ -227,9 +228,8 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
             return NextResponse.json({ message: "คุณไม่ใช่เจ้าของการจองนี้" }, { status: 403 })
         }
 
-        // กฎ: ลบได้เฉพาะรายการที่ยังไม่ดำเนินการ (Pending) หรือถูกปฏิเสธ (Rejected) 
-        // ถ้าเป็น 'accepted' หรือ 'done' ไม่ควรให้ลบ เพราะอาจกระทบกับฝั่ง Provider หรือประวัติงาน
-        if (historyData.status === 'accepted' || historyData.status === 'done') {
+        // กฎ: ลบได้เฉพาะรายการที่ยังไม่ดำเนินการ (Pending) หรือกำลังดำเนินงานยังไม่เสร็จ (accepted)
+        if (historyData.status !== 'pending' && historyData.status !== 'accepted') {
             return NextResponse.json({ message: "ไม่สามารถลบรายการที่รับงานแล้วหรือเสร็จสิ้นแล้วได้" }, { status: 400 })
         }
 
@@ -240,6 +240,12 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
             .eq("id", history_id)
 
         if (deleteError) throw deleteError
+
+        // 4 หากเป็น accept ต้องไปลบในตาราง service_timetable ด้วย
+        if(historyData.status === 'accepted'){
+            
+        }
+
 
         return NextResponse.json({ message: "Deleted successful" }, { status: 200 })
 
