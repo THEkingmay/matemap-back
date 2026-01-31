@@ -230,7 +230,7 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
 
         // กฎ: ลบได้เฉพาะรายการที่ยังไม่ดำเนินการ (Pending) หรือกำลังดำเนินงานยังไม่เสร็จ (accepted)
         if (historyData.status !== 'pending' && historyData.status !== 'accepted') {
-            return NextResponse.json({ message: "ไม่สามารถลบรายการที่รับงานแล้วหรือเสร็จสิ้นแล้วได้" }, { status: 400 })
+            return NextResponse.json({ message: "ไม่สามารถลบรายการที่ปฏิเสธหรือเสร็จสิ้นแล้วได้" }, { status: 400 })
         }
 
         // 3. ทำการลบ !!  มันจะไปลบใน service_timetable ให้อัตโนมัติเพราะผูกไว้แล้ว
