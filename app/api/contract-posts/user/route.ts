@@ -50,7 +50,7 @@ export async function PUT(req: NextRequest) {
   try {
 
     const formData = await req.formData()
-        // console.log(formData)
+    // console.log(formData)
     const post_id = formData.get('id')
     // ดึงโพสต์ไอดีนี้เอา user_id
     const { data: postSelect, error: postSelectError } = await supabase
@@ -77,7 +77,7 @@ export async function PUT(req: NextRequest) {
         district: formData.get('district'),
         sub_district: formData.get('sub_district'),
         street: formData.get('street'),
-        postal_code : formData.get('postal_code'),
+        postal_code: formData.get('postal_code'),
         city: formData.get('city'),
       };
       // อับเดตโพสต์
@@ -130,7 +130,7 @@ export async function PUT(req: NextRequest) {
       ).end(buffer)
     }
     )
-    
+
     const updatePayload = {
       title: formData.get('title'),
       price: Number(formData.get('price')),
@@ -139,7 +139,7 @@ export async function PUT(req: NextRequest) {
       district: formData.get('district'),
       sub_district: formData.get('sub_district'),
       street: formData.get('street'),
-      postal_code : formData.get('postal_code'),
+      postal_code: formData.get('postal_code'),
       city: formData.get('city'),
       image_url: null,
       image_public_id: null
@@ -168,6 +168,7 @@ export async function PUT(req: NextRequest) {
   }
 }
 
+// add post
 export async function POST(req: NextRequest) {
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -177,13 +178,13 @@ export async function POST(req: NextRequest) {
     if (!userId) return NextResponse.json({ message: "ไม่มีไอดีผู้ใช้" }, { status: 403 });
 
     const formData = await req.formData();
-    
+
     // 1. Validate Text Data (Basic check to ensure we don't upload if data is bad)
     const title = formData.get('title');
     const price = formData.get('price');
-    
+
     if (!title || !price) {
-        return NextResponse.json({ message: "Missing required fields (title or price)" }, { status: 400 });
+      return NextResponse.json({ message: "Missing required fields (title or price)" }, { status: 400 });
     }
 
     const isAuthorized = await validateRequest(req, userId);
@@ -258,3 +259,41 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: (err as Error).message }, { status: 500 });
   }
 }
+
+// delete post
+export async function DELETE(req: NextRequest) {
+  try {
+
+    const postId = req.nextUrl.searchParams.get("postId")
+
+    if (!postId) return NextResponse.json({ message: "ข้อมูลไม่ครบ" }, { status: 400 })
+
+    // get post by id to get user id
+    const {data : selectPost  , error} = await supabase
+    .from('contract_posts')
+    .select("user_id")
+    .eq('id' , postId)
+
+    if(error) throw error
+
+    if(selectPost.length<= 0) return NextResponse.json({message : "ไม่พบโพสต์"} , {status : 404})
+
+    // check authorize
+    const isAuthorized = await validateRequest(req , selectPost[0].user_id)
+    if(!isAuthorized) return NextResponse.json({message : "คุณไม่มีสิทธิ์"} , {status : 409})
+
+    // delete post 
+    const {error : deleteError}  = await supabase
+    .from('contract_posts')
+    .delete()
+    .eq('id', postId)
+
+    if(deleteError) throw deleteError
+
+    return NextResponse.json({message : "ลบสำเร็จ"}, {status : 200})
+
+  } catch (err) {
+    return NextResponse.json({ message: (err as Error).message }, { status: 500 })
+  }
+}
+
