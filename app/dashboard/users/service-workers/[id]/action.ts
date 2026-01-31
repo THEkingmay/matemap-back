@@ -24,7 +24,7 @@ export async function getWorkerDetail(worker_id: string) {
         // 3. Parallel Execution for Related Data
         // We run these together because they don't depend on each other, 
         // they only depend on the worker_id.
-        const [servicesResult, historyResult] = await Promise.all([
+        const [servicesResult, historyResult, userResult] = await Promise.all([
             // Task A: Find Service IDs and Names
             // Note: This is still a bit 'manual'. A Join is better, but this fixes your flow.
             supabase
@@ -40,7 +40,14 @@ export async function getWorkerDetail(worker_id: string) {
                 .from('service_history')
                 .select('*')
                 .eq('provider_id', worker_id)
-                .order('created_at')
+                .order('created_at'),
+            
+            // Task C: ดึง Email จากตาราง users
+            supabase
+                .from('users') // หรือชื่อตารางที่คุณใช้เก็บ auth/user profile
+                .select('email')
+                .eq('id', worker_id)
+                .single()
         ]);
 
         // 4. Construct Data
@@ -56,7 +63,8 @@ export async function getWorkerDetail(worker_id: string) {
         const data: WorkerDetailType = {
             detail: workerDetail,
             job: jobs , // Now contains actual service names/details
-            job_history: historyResult.data || []
+            job_history: historyResult.data || [],
+            email: userResult.data?.email || "No Email"
         };
 
         return { success: true, data: data };

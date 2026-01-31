@@ -34,6 +34,7 @@ export interface WorkerDetailType {
   detail: Worker;
   job: Job[];
   job_history: JobHistory[];
+  email: string
 }
 
 
@@ -108,7 +109,7 @@ export default function ServiceWorkerDetail() {
     );
   }
 
-  const { detail: worker, job: services, job_history: history } = data;
+  const { detail: worker, job: services, job_history: history, email: userEmail } = data;
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-6 md:p-10 font-sans text-slate-800">
@@ -135,7 +136,7 @@ export default function ServiceWorkerDetail() {
             <div className="w-full space-y-3 text-sm text-slate-600">
               <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-2">
                 <Mail size={16} className="text-slate-400" />
-                <span className="truncate">{worker.email}</span>
+                <span className="truncate">{userEmail}</span>
               </div>
               {worker.tel && (
                 <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-2">
