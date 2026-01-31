@@ -217,7 +217,7 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
         // 2. ตรวจสอบสถานะก่อนลบ (สำคัญมาก เพื่อความปลอดภัยของข้อมูล)
         const { data: historyData, error: fetchError } = await supabase
             .from("service_history")
-            .select("customer_id, status")
+            .select("customer_id, provider_id  ,status , start_date , end_date")
             .eq("id", history_id)
             .single()
 
@@ -233,7 +233,7 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
             return NextResponse.json({ message: "ไม่สามารถลบรายการที่รับงานแล้วหรือเสร็จสิ้นแล้วได้" }, { status: 400 })
         }
 
-        // 3. ทำการลบ
+        // 3. ทำการลบ !!  มันจะไปลบใน service_timetable ให้อัตโนมัติเพราะผูกไว้แล้ว
         const { error: deleteError } = await supabase
             .from("service_history")
             .delete()
@@ -241,10 +241,6 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
 
         if (deleteError) throw deleteError
 
-        // 4 หากเป็น accept ต้องไปลบในตาราง service_timetable ด้วย
-        if(historyData.status === 'accepted'){
-            
-        }
 
 
         return NextResponse.json({ message: "Deleted successful" }, { status: 200 })
