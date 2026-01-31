@@ -75,7 +75,6 @@ export async function POST(
       readyDate,
       detail,
       facilities,
-      image_url,
     } = body;
 
     const { data, error } = await supabase
