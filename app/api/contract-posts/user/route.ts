@@ -24,7 +24,8 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
       .from('contract_posts')
       .select('*')
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .order('created_at', { ascending: false })
 
     // 4. Handle Database Errors
     if (error) {
@@ -247,8 +248,6 @@ export async function POST(req: NextRequest) {
     // 6. Check for Database Error
     if (error) {
       console.error("Supabase Insert Error:", error);
-      // Optional: Add logic here to delete the uploaded image from Cloudinary 
-      // since the DB insert failed (cleanup).
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
@@ -269,28 +268,32 @@ export async function DELETE(req: NextRequest) {
     if (!postId) return NextResponse.json({ message: "ข้อมูลไม่ครบ" }, { status: 400 })
 
     // get post by id to get user id
-    const {data : selectPost  , error} = await supabase
-    .from('contract_posts')
-    .select("user_id")
-    .eq('id' , postId)
+    const { data: selectPost, error } = await supabase
+      .from('contract_posts')
+      .select("user_id , image_public_id")
+      .eq('id', postId)
 
-    if(error) throw error
+    if (error) throw error
 
-    if(selectPost.length<= 0) return NextResponse.json({message : "ไม่พบโพสต์"} , {status : 404})
+    if (selectPost.length <= 0) return NextResponse.json({ message: "ไม่พบโพสต์" }, { status: 404 })
 
     // check authorize
-    const isAuthorized = await validateRequest(req , selectPost[0].user_id)
-    if(!isAuthorized) return NextResponse.json({message : "คุณไม่มีสิทธิ์"} , {status : 409})
+    const isAuthorized = await validateRequest(req, selectPost[0].user_id)
+    if (!isAuthorized) return NextResponse.json({ message: "คุณไม่มีสิทธิ์" }, { status: 409 })
 
     // delete post 
-    const {error : deleteError}  = await supabase
-    .from('contract_posts')
-    .delete()
-    .eq('id', postId)
+    const { error: deleteError } = await supabase
+      .from('contract_posts')
+      .delete()
+      .eq('id', postId)
 
-    if(deleteError) throw deleteError
+    // delete image from cloudinary
+    if (selectPost[0].image_public_id)
+      await cloudinary.uploader.destroy(selectPost[0].image_public_id);
 
-    return NextResponse.json({message : "ลบสำเร็จ"}, {status : 200})
+    if (deleteError) throw deleteError
+
+    return NextResponse.json({ message: "ลบสำเร็จ" }, { status: 200 })
 
   } catch (err) {
     return NextResponse.json({ message: (err as Error).message }, { status: 500 })
