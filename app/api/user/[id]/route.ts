@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import supabase from "@/configs/supabase";
 import { UserDetail } from "@/types/type";
 import { validateRequest } from "@/utils/token";
+import cloudinary from "@/configs/cloudinary";
 
 export async function GET(
   req: NextRequest,
@@ -115,7 +116,7 @@ export async function DELETE(
   try {
     // 2. ดำเนินการลบ (Delete Operation)
     const { error } = await supabase
-      .from("user_detail")
+      .from("users")
       .delete()
       .eq("id", id); // ลบแถวที่มี id ตรงกัน
 
@@ -124,11 +125,22 @@ export async function DELETE(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    const deletion_res = await  cloudinary.api.delete_resources_by_prefix(`matemap/users/${id}/profile`, {resource_type: 'image' }, async() => {
+            console.log("Resources deleted, now deleting the folder...");
+              await cloudinary.api.delete_folder(`matemap/users/${id}`, (error: any, result: any) => {
+                if (error) {
+                    console.error(error);
+                } else {
+                    console.log(result);
+                }
+            });
+          });
+
+
     // 3. แจ้งผลสำเร็จ (Success Response)
     // การลบมักจะไม่ส่ง data กลับ แต่ส่งข้อความยืนยัน
     return NextResponse.json(
-      { message: "ลบข้อมูลผู้ใช้สำเร็จ" },
-      { status: 200 }
+      { message: "ลบข้อมูลผู้ใช้สำเร็จ" , status: 200, cloudinary_message: deletion_res}
     );
 
   } catch (err) {

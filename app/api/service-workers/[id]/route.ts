@@ -1,6 +1,7 @@
 import supabase from "@/configs/supabase";
 import { NextResponse, NextRequest } from "next/server";
 import { validateRequest, verifyToken } from "@/utils/token";
+import cloudinary from "@/configs/cloudinary";
 
 /* =========================
    Helper: auth guard
@@ -162,25 +163,40 @@ export async function DELETE(
 ) {
   const { id } = await context.params;
 
-  const authError = await authorize(req, id);
-  if (authError) return authError;
+  try {
 
-  await supabase
-    .from("service_worker_detail")
-    .delete()
-    .eq("id", id);
+    const authError = await authorize(req, id);
+    if (authError) return authError;
 
-  const { error } = await supabase
-    .from("users")
-    .delete()
-    .eq("id", id);
+    await supabase
+      .from("service_worker_detail")
+      .delete()
+      .eq("id", id);
 
-  if (error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    await supabase
+      .from("users")
+      .delete()
+      .eq("id", id);
+
+      const deletion_res = await  cloudinary.api.delete_resources_by_prefix(`matemap/service-workers/${id}/profile`, {resource_type: 'image' }, async() => {
+        console.log("Resources deleted, now deleting the folder...");
+          await cloudinary.api.delete_folder(`matemap/service-workers/${id}`, (error: any, result: any) => {
+            if (error) {
+                console.error(error);
+            } else {
+                console.log(result);
+            }
+        });
+      });
+
+    return NextResponse.json({ message: "deleted", cloudinary_message: deletion_res });
+    
+  } catch (err) {
+      return NextResponse.json(
+        { err },
+        { status: 500 }
+      );
   }
 
-  return NextResponse.json({ message: "deleted" });
+  
 }
