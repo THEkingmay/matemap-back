@@ -75,29 +75,26 @@ export async function GET(
 /* =====================================================
    PUT : provider action (accept / done / reject)
 ===================================================== */
+
 export async function PUT(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: provider_id } = await context.params; // ⭐ สำคัญ
+    const { id: provider_id } = await context.params;
     const { history_id, action } = await req.json();
 
+    // 1. Validation เบื้องต้น
     if (!provider_id || !history_id || !action) {
-      return NextResponse.json(
-        { message: "missing params" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "missing params" }, { status: 400 });
     }
 
     const isAuth = await validateRequest(req, provider_id);
     if (!isAuth) {
-      return NextResponse.json(
-        { message: "unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "unauthorized" }, { status: 401 });
     }
 
+    // 2. ดึงข้อมูล History
     const { data: history, error } = await supabase
       .from("service_history")
       .select("*")
@@ -105,44 +102,59 @@ export async function PUT(
       .single();
 
     if (error || !history) {
-      return NextResponse.json(
-        { message: "history not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "history not found" }, { status: 404 });
     }
 
     if (history.provider_id !== provider_id) {
-      return NextResponse.json(
-        { message: "not your job" },
-        { status: 403 }
-      );
+      return NextResponse.json({ message: "not your job" }, { status: 403 });
     }
 
-    /* ================= ACCEPT ================= */
+    /* ================= ACTION HANDLERS ================= */
+    
+    // CASE 1: ACCEPT
     if (action === "accepted") {
       if (history.status !== "pending") {
         return NextResponse.json(
-          { message: "cannot accept this job" },
+          { message: "cannot accept this job (status is not pending)" },
           { status: 400 }
         );
       }
 
-      await supabase
-        .from("service_history")
-        .update({ status: "accepted" })
-        .eq("id", history_id);
+      // ตรวจสอบเวลาชน (Overlap Check)
+      const { data: existingBookings, error: exitError } = await supabase
+        .from("service_timetable")
+        .select("id") // เลือกแค่ ID ก็พอเพื่อความเร็ว
+        .eq("service_provider_id", provider_id) 
+        .lt("start_date", history.end_date)
+        .gt("end_date", history.start_date);
 
-      await supabase.from("service_timetable").insert({
+      if (exitError) throw exitError;
+      if (existingBookings && existingBookings.length > 0) {
+        return NextResponse.json(
+          { message: "Time slot overlap! Cannot accept." },
+          { status: 409 }
+        );
+      }
+
+      // Insert ลงตารางเวลา
+      const { error: insertError } = await supabase.from("service_timetable").insert({
         service_provider_id: provider_id,
         start_date: history.start_date,
         end_date: history.end_date,
         service_history_id: history_id,
-        type: "job",
+        type: "booked",
       });
-    }
-
-    /* ================= DONE ================= */
-    if (action === "done") {
+      
+      if (insertError) throw insertError;
+      
+      await supabase
+        .from("service_history")
+        .update({ status: "accepted" })
+        .eq("id", history_id);
+    } 
+    
+    // CASE 2: DONE
+    else if (action === "done") { // ใช้ else if เพื่อความชัดเจน
       if (history.status !== "accepted") {
         return NextResponse.json(
           { message: "job not accepted yet" },
@@ -154,10 +166,10 @@ export async function PUT(
         .from("service_history")
         .update({ status: "done" })
         .eq("id", history_id);
-    }
-
-    /* ================= REJECT ================= */
-    if (action === "rejected") {
+    } 
+    
+    // CASE 3: REJECT
+    else if (action === "rejected") {
       if (history.status === "done") {
         return NextResponse.json(
           { message: "cannot reject completed job" },
@@ -170,16 +182,23 @@ export async function PUT(
         .update({ status: "rejected" })
         .eq("id", history_id);
 
+      // ลบออกจากตารางเวลา (ถ้ามี)
       await supabase
         .from("service_timetable")
         .delete()
         .eq("service_history_id", history_id);
+    } 
+    
+    // CASE DEFAULT: Unknown Action
+    else {
+        return NextResponse.json({ message: "invalid action" }, { status: 400 });
     }
 
     return NextResponse.json(
       { message: "update success" },
       { status: 200 }
     );
+
   } catch (err) {
     console.error(err);
     return NextResponse.json(
