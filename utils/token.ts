@@ -62,7 +62,6 @@ export async function validateRequest(req: NextRequest, targetId: string): Promi
   }
 
   const token = authHeader.split(" ")[1];
-
   try {
     const user = await verifyToken(token);
     if (user.role == 'admin') {
@@ -71,7 +70,6 @@ export async function validateRequest(req: NextRequest, targetId: string): Promi
     if (!user || user.id !== targetId) {
       return false; 
     }
-
     return true; 
   } catch (error) {
 
