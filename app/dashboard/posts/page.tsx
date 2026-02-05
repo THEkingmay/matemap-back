@@ -18,16 +18,19 @@ const STATUS_LABELS = {
 
 export default function PostHomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [lastIndexCreatedAt, setLastIndexCreatedAt] = useState<string | undefined>(undefined);
+  const [lastIndexCreatedAt, setLastIndexCreatedAt] = useState<
+    string | undefined
+  >(undefined);
   const [loading, setLoading] = useState<boolean>(false);
-  const [filterStatus, setFilterStatus] = useState<keyof typeof STATUS_LABELS>("all");
+  const [filterStatus, setFilterStatus] =
+    useState<keyof typeof STATUS_LABELS>("all");
 
   const fetch100Posts = async () => {
     try {
       setLoading(true);
       const data = await get100Posts(lastIndexCreatedAt);
-      
-      setPosts((prevPosts) => {
+
+      setPosts(prevPosts => {
         const newPosts = data.filter(d => !prevPosts.some(p => p.id === d.id));
         return [...prevPosts, ...newPosts];
       });
@@ -51,7 +54,7 @@ export default function PostHomePage() {
 
   const filteredPosts = useMemo(() => {
     if (filterStatus === "all") return posts;
-    return posts.filter((post) => post.status === filterStatus);
+    return posts.filter(post => post.status === filterStatus);
   }, [posts, filterStatus]);
 
   const getStatusBadge = (status: string) => {
@@ -67,17 +70,20 @@ export default function PostHomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      
       {/* ส่วนหัวข้อ */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">รายการประกาศ</h1>
-          <p className="text-sm text-gray-500 mt-1">จัดการและตรวจสอบสถานะโพสต์ทั้งหมดในระบบ</p>
+          <p className="text-sm text-gray-500 mt-1">
+            จัดการและตรวจสอบสถานะโพสต์ทั้งหมดในระบบ
+          </p>
         </div>
 
         {/* ปุ่มกรองสถานะ */}
         <div className="flex p-1 bg-gray-100 rounded-lg self-start md:self-auto overflow-x-auto">
-          {(Object.keys(STATUS_LABELS) as Array<keyof typeof STATUS_LABELS>).map((status) => (
+          {(
+            Object.keys(STATUS_LABELS) as Array<keyof typeof STATUS_LABELS>
+          ).map(status => (
             <button
               key={status}
               onClick={() => setFilterStatus(status)}
@@ -95,9 +101,9 @@ export default function PostHomePage() {
 
       {/* รายการโพสต์แบบ Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredPosts.map((post) => (
-          <Link 
-            href={`/dashboard/posts/${post.id}`} 
+        {filteredPosts.map(post => (
+          <Link
+            href={`/dashboard/posts/${post.id}`}
             key={post.id}
             className="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
           >
@@ -116,8 +122,11 @@ export default function PostHomePage() {
               )}
               {/* Badge สถานะภาษาไทย */}
               <div className="absolute top-3 right-3">
-                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getStatusBadge(post.status)} shadow-sm`}>
-                  {STATUS_LABELS[post.status as keyof typeof STATUS_LABELS] || post.status}
+                <span
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getStatusBadge(post.status)} shadow-sm`}
+                >
+                  {STATUS_LABELS[post.status as keyof typeof STATUS_LABELS] ||
+                    post.status}
                 </span>
               </div>
             </div>
@@ -129,11 +138,13 @@ export default function PostHomePage() {
                 </h3>
                 <div className="flex items-center text-gray-500 text-xs mt-1 space-x-2">
                   <Calendar className="w-3 h-3" />
-                  <span>{new Date(post.created_at).toLocaleDateString("th-TH", {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}</span>
+                  <span>
+                    {new Date(post.created_at).toLocaleDateString("th-TH", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </span>
                 </div>
               </div>
 
@@ -161,7 +172,9 @@ export default function PostHomePage() {
         <div className="text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
           <Tag className="w-12 h-12 text-gray-300 mx-auto mb-3" />
           <h3 className="text-lg font-medium text-gray-900">ไม่พบประกาศ</h3>
-          <p className="text-gray-500 text-sm">ลองเปลี่ยนหมวดหมู่หรือตัวกรองสถานะ</p>
+          <p className="text-gray-500 text-sm">
+            ลองเปลี่ยนหมวดหมู่หรือตัวกรองสถานะ
+          </p>
         </div>
       )}
 
@@ -177,7 +190,8 @@ export default function PostHomePage() {
             {loading ? "กำลังโหลด..." : "โหลดเพิ่มเติม"}
           </button>
         ) : (
-          !loading && posts.length > 0 && (
+          !loading &&
+          posts.length > 0 && (
             <span className="text-sm text-gray-400">แสดงรายการทั้งหมดแล้ว</span>
           )
         )}
