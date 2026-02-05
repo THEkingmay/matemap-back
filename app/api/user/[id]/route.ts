@@ -114,6 +114,37 @@ export async function DELETE(
   }
 
   try {
+
+    const deletion_profile_res = await  cloudinary.api.delete_resources_by_prefix(`matemap/users/${id}/profile`, {resource_type: 'image' }, async() => {
+            console.log("Resources deleted, now deleting the folder...");
+              await cloudinary.api.delete_folder(`matemap/users/${id}`, (error: any, result: any) => {
+                if (error) {
+                    console.error(error);
+                } else {
+                    console.log(result);
+                }
+            });
+          });
+
+      
+    const { data: posts } = await supabase
+      .from("contract_posts")
+      .select("id")
+      .eq("user_id", id);
+
+    
+    let deletion_posts_res : any = [];
+
+    await Promise.all(
+      posts!.map(async (post) => {
+        const folder = `matemap/contract-posts/${post.id}`;
+        const deletion_resources_res = await cloudinary.api.delete_resources_by_prefix(folder);
+        const deletion_folder_res = await cloudinary.api.delete_folder(folder);
+
+        deletion_posts_res.push({deletion_resources_res, deletion_folder_res});
+      })
+    );
+
     // 2. ดำเนินการลบ (Delete Operation)
     const { error } = await supabase
       .from("users")
@@ -125,22 +156,10 @@ export async function DELETE(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const deletion_res = await  cloudinary.api.delete_resources_by_prefix(`matemap/users/${id}/profile`, {resource_type: 'image' }, async() => {
-            console.log("Resources deleted, now deleting the folder...");
-              await cloudinary.api.delete_folder(`matemap/users/${id}`, (error: any, result: any) => {
-                if (error) {
-                    console.error(error);
-                } else {
-                    console.log(result);
-                }
-            });
-          });
-
-
     // 3. แจ้งผลสำเร็จ (Success Response)
     // การลบมักจะไม่ส่ง data กลับ แต่ส่งข้อความยืนยัน
     return NextResponse.json(
-      { message: "ลบข้อมูลผู้ใช้สำเร็จ" , status: 200, cloudinary_message: deletion_res}
+      { message: "ลบข้อมูลผู้ใช้สำเร็จ" , status: 200, cloudinary_message: deletion_profile_res, deletion_posts_res}
     );
 
   } catch (err) {
