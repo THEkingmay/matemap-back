@@ -112,7 +112,9 @@ function DashboardStats() {
             <div>
               <p className="text-sm text-gray-600">โพสต์รออนุมัติ</p>
               <p className="text-2xl font-bold text-gray-900">
-                {loading ? "" : posts.length}
+                {loading
+                  ? ""
+                  : posts.filter(post => post.status === "pending").length}
               </p>
             </div>
             <FileCheck className="text-orange-600" size={32} />
