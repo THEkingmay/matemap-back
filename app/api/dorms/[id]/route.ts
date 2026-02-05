@@ -1,6 +1,7 @@
 import supabase from '@/configs/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 import { checkOwnership } from '@/utils/auth';
+import cloudinary from '@/configs/cloudinary';
 
 
 // GET /api/dorms/[id] - ดึงข้อมูลหอพัก
@@ -11,19 +12,19 @@ export async function GET(
   try {
     const { id } = await context.params;
 
-   const authCheck = await checkOwnership(request, id);
+    const authCheck = await checkOwnership(request, id);
 
-   if (authCheck.error) {
+    if (authCheck.error) {
       return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
     }
-    
-    const { data, error } = await supabase
-    .from("dorm_detail")
-    .select('*')
-    .eq("id", id)
-    .single();
 
-    if(!data) return NextResponse.json({message : "ไม่พบหอพัก"} , {status : 404})
+    const { data, error } = await supabase
+      .from("dorm_detail")
+      .select('*')
+      .eq("id", id)
+      .single();
+
+    if (!data) return NextResponse.json({ message: "ไม่พบหอพัก" }, { status: 404 })
     //เอาอีเมลเจ้าของหอพักมาด้วย
     const { data: userData, error: userError } = await supabase
       .from("users")
@@ -34,7 +35,7 @@ export async function GET(
     if (userError) throw userError;
 
     const dormWithOwnerEmail = {
-      data : data,
+      data: data,
       owner_email: userData?.email || null,
     };
 
@@ -59,13 +60,13 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const body = await request.json();
-    
-    
+
+
     const authCheck = await checkOwnership(request, id);
 
     if (authCheck.error) {
-        return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
-      }
+      return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
+    }
 
     const allowedFields = [
       "name",
@@ -96,11 +97,11 @@ export async function PATCH(
       .select()
       .single();
 
-    
+
 
     if (error) throw error;
 
-     return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to update dorm' },
@@ -118,10 +119,10 @@ export async function DELETE(
   try {
     const { id } = await context.params;
 
-    
-   const authCheck = await checkOwnership(request, id);
 
-   if (authCheck.error) {
+    const authCheck = await checkOwnership(request, id);
+
+    if (authCheck.error) {
       return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
     }
     // ดึง user_id จาก dorm_detail ก่อนลบ
@@ -140,7 +141,11 @@ export async function DELETE(
 
     if (error) throw error;
 
-    return NextResponse.json({ success: true }, { status: 200 }); 
+    await cloudinary.api.delete_resources_by_prefix(`matemap/dorm/${id}/profile`, { resource_type: 'image' });
+
+    await cloudinary.api.delete_folder(`matemap/dorm/${id}`);
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to delete dorm' },

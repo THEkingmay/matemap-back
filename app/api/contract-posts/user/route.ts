@@ -292,7 +292,13 @@ export async function DELETE(req: NextRequest) {
       await cloudinary.uploader.destroy(selectPost[0].image_public_id);
 
     if (deleteError) throw deleteError
-
+    await cloudinary.api.delete_folder(`matemap/contract-posts/${postId}`, (error: any, result: any) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log(result);
+      }
+    });
     return NextResponse.json({ message: "ลบสำเร็จ" }, { status: 200 })
 
   } catch (err) {
