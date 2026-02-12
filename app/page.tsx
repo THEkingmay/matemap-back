@@ -51,7 +51,7 @@ export default function LandingPage() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center items-center">
         
-        <a href="https://expo.dev/accounts/matheedev/projects/matemap-front/builds/26e6f309-77b4-44ae-8fab-8cbaafb082f8">
+        <a href="https://github.com/THEkingmay/matemap-front/releases/download/matemap/matemap.apk" download>
 
           <Button 
             size="lg" 
