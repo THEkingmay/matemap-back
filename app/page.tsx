@@ -51,7 +51,7 @@ export default function LandingPage() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center items-center">
         
-        <a href="/เส้นทางสำหรับไฟล์.apk" download>
+        <a href="https://github.com/THEkingmay/matemap-front/releases/download/matemap/application-865a4319-ed65-46ca-849c-8f33cacdb45d.apk" download>
 
           <Button 
             size="lg" 
